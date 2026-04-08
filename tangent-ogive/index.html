@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tangent Ogive CFD Analysis — Samay Shah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] } };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1f;
+    --bg2: #0e0e1a;
+    --bg3: #131320;
+    --border: #1e1e2e;
+    --border2: #2a2a3e;
+    --text: #fe9c00;
+    --muted: #555570;
+    --muted2: #888898;
+    --accent: #fe9c00;
+    --accent2: #fe9c00;
+    --accent3: #4D9078;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  body { cursor: none; }
+  #cursor {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s, opacity 0.15s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+    transform: translate(-50%, -50%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,15,0.85);
+    backdrop-filter: blur(12px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  #hero {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    padding-top: 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,222,128,0.04) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    max-width: 900px;
+  }
+  .hero-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: inline-block;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-back:hover { color: var(--text); border-color: var(--muted2); }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+  .hero-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.45s forwards;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .hero-desc {
+    font-size: 15px;
+    color: var(--muted2);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.75s forwards;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meta-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 48px;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 48px;
+    opacity: 0.6;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 820px;
+  }
+  .content p {
+    color: var(--muted2);
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+  .content p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* PARAMS TABLE */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 820px;
+  }
+  .param-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 20px;
+  }
+  .param-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .param-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* DATA TABLE */
+  .data-table {
+    width: 100%;
+    max-width: 820px;
+    border-collapse: collapse;
+    margin: 24px 0 40px;
+  }
+  .data-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg2);
+  }
+  .data-table td {
+    font-size: 14px;
+    color: var(--muted2);
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .data-table tr:hover td {
+    color: var(--text);
+    background: rgba(254,156,0,0.02);
+  }
+  .data-table .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* CONTOUR GALLERY */
+  .contour-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .contour-item {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .contour-item:hover { border-color: var(--border2); }
+  .contour-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .contour-item:hover img { transform: scale(1.02); }
+  .contour-caption {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .contour-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.05em;
+  }
+  .contour-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* METHOD CARDS */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .method-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .method-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .method-card:hover { border-color: var(--border2); }
+  .method-card:hover::before { transform: scaleX(1); }
+  .method-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--border2);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .method-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .method-desc {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+  .method-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .method-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* EQUATIONS */
+  .equation-block {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 28px 32px;
+    margin: 24px 0 32px;
+    max-width: 820px;
+    overflow-x: auto;
+  }
+  .equation-block .MathJax { color: var(--text) !important; }
+  .equation-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* KEY FINDING */
+  .finding {
+    border-left: 2px solid var(--accent);
+    padding: 20px 28px;
+    margin: 32px 0;
+    max-width: 820px;
+    background: rgba(254,156,0,0.03);
+  }
+  .finding p {
+    color: var(--muted2);
+    line-height: 1.8;
+    margin: 0;
+    font-size: 14px;
+  }
+  .finding strong {
+    color: var(--text);
+  }
+
+  /* CONCLUSION LIST */
+  .conclusion-list {
+    list-style: none;
+    max-width: 820px;
+  }
+  .conclusion-list li {
+    position: relative;
+    padding-left: 24px;
+    color: var(--muted2);
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  .conclusion-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+  .conclusion-list li strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* REPORT LINK */
+  .report-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    padding: 14px 28px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    margin-top: 16px;
+  }
+  .report-link:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .link-ghost {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    text-decoration: none;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    margin-left: 24px;
+  }
+  .link-ghost:hover { color: var(--text); border-color: var(--muted2); }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 48px;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .footer-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .footer-back:hover { color: var(--accent); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    #hero { padding: 0 24px; padding-top: 80px; }
+    footer { padding: 24px; flex-direction: column; gap: 12px; }
+    .contour-gallery { grid-template-columns: 1fr; }
+    .method-grid { grid-template-columns: 1fr; }
+    .params-grid { grid-template-columns: 1fr 1fr; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="https://samayhs.github.io" class="nav-logo">S.Shah</a>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#methods">Methods</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#conclusions">Conclusions</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <a href="https://samayhs.github.io/#projects" class="hero-back">&larr; Back to projects</a>
+    <div class="hero-tag">// CFD Project Writeup</div>
+    <h1 class="hero-name">High-Speed Flow over a<br/><em>Tangent Ogive</em></h1>
+    <p class="hero-desc">Evaluating Newtonian impact theory against inviscid Euler and viscous RANS CFD for predicting pressure drag on a tangent ogive nose at Mach 5.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Mach</span>
+        <span class="meta-value">5.0</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Solver</span>
+        <span class="meta-value">SU2 v8.3</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Models</span>
+        <span class="meta-value">Euler + RANS (SST)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Mesher</span>
+        <span class="meta-value">Gmsh</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-label">// 01 &mdash; Overview</div>
+  <h2 class="section-title">Problem statement</h2>
+  <div class="section-divider"></div>
+  <div class="content reveal">
+    <p>The tangent ogive is one of the most common forebody shapes in high-speed aerodynamics, used in everything from projectiles to launch vehicles. Its curved profile weakens the bow shock relative to blunt geometries, reducing wave drag at supersonic and hypersonic speeds.</p>
+    <p>This study evaluates how well <strong>Newtonian impact theory</strong>&mdash;a simple analytical model&mdash;predicts forebody pressure drag compared to full CFD. An axisymmetric tangent ogive with a short cylindrical afterbody is analyzed at <strong>zero angle of attack</strong> and <strong>Mach 5</strong>, comparing Newtonian theory against inviscid Euler and viscous RANS simulations.</p>
+  </div>
+
+  <div class="params-grid reveal">
+    <div class="param-box">
+      <div class="param-value">5.0 m</div>
+      <div class="param-label">Nose length (L)</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">1.9 m</div>
+      <div class="param-label">Base radius (R)</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">1.23</div>
+      <div class="param-label">Fineness ratio (L/D)</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">M = 5</div>
+      <div class="param-label">Freestream Mach</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">300 K</div>
+      <div class="param-label">Freestream temp</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">101,325 Pa</div>
+      <div class="param-label">Freestream pressure</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">&gamma; = 1.4</div>
+      <div class="param-label">Ratio of specific heats</div>
+    </div>
+    <div class="param-box">
+      <div class="param-value">5.5 &times; 10&#8312;</div>
+      <div class="param-label">Reynolds number</div>
+    </div>
+  </div>
+</section>
+
+<!-- METHODS -->
+<section id="methods">
+  <div class="section-label">// 02 &mdash; Methods</div>
+  <h2 class="section-title">Three approaches</h2>
+  <div class="section-divider"></div>
+
+  <div class="method-grid reveal">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">Newtonian Impact Theory</div>
+      <div class="method-desc">Analytical model assuming surface pressure depends only on local surface inclination angle. Both pure Newtonian ($C_{p,\max}=2$) and modified Newtonian ($C_{p,\max}=1.6$) variants were computed and validated against the Mayo tables.</div>
+      <div class="method-tags">
+        <span class="method-tag">Analytical</span>
+        <span class="method-tag">Python</span>
+        <span class="method-tag">Mayo Tables</span>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Inviscid Euler CFD</div>
+      <div class="method-desc">Compressible Euler equations solved on three progressively refined meshes (4,458 to 64,677 cells) using HLLC flux scheme, 2nd-order MUSCL reconstruction, and Venkatakrishnan limiter. Grid convergence study performed.</div>
+      <div class="method-tags">
+        <span class="method-tag">SU2</span>
+        <span class="method-tag">HLLC</span>
+        <span class="method-tag">Gmsh</span>
+        <span class="method-tag">Grid Study</span>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">Viscous RANS (SST)</div>
+      <div class="method-desc">Compressible RANS with Menter's $k$&ndash;$\omega$ SST turbulence model on a 260,287-cell mesh. JST flux scheme, adaptive CFL, and wall-resolved boundary layer with growth ratio of 1.2.</div>
+      <div class="method-tags">
+        <span class="method-tag">SU2</span>
+        <span class="method-tag">SST</span>
+        <span class="method-tag">JST</span>
+        <span class="method-tag">260K cells</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content reveal">
+    <div class="equation-block">
+      <div class="equation-label">Newtonian pressure coefficient</div>
+      $$C_p(\theta) = C_{p,\max}\,\sin^2\!\theta$$
+    </div>
+    <div class="equation-block">
+      <div class="equation-label">Modified Newtonian stagnation pressure</div>
+      $$C_{p,\max}(M_\infty, \gamma) = \frac{2}{\gamma M_\infty^2}\left[\frac{2\gamma M_\infty^2 - (\gamma-1)}{\gamma+1} - 1\right] = 1.6$$
+    </div>
+    <p>The forebody pressure drag was computed by integrating axial pressure over the ogive surface with reference area $S_{\text{ref}} = \pi R^2 = 11.34\,\text{m}^2$.</p>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="section-label">// 03 &mdash; Results</div>
+  <h2 class="section-title">Flow visualization</h2>
+  <div class="section-divider"></div>
+
+  <div class="content reveal">
+    <p>Mach number contours from the Euler simulations on progressively refined grids. As the mesh is refined, the <strong>bow shock becomes sharper</strong> and more localized, indicating reduced numerical dissipation and improved resolution of shock curvature.</p>
+  </div>
+
+  <div class="contour-gallery reveal">
+    <div class="contour-item">
+      <img src="assets/mach_coarse.png" alt="Mach contour — coarse Euler grid" loading="lazy" />
+      <div class="contour-caption">
+        <span class="contour-label">Coarse Euler</span>
+        <span class="contour-tag">4,458 cells</span>
+      </div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_medium.png" alt="Mach contour — medium Euler grid" loading="lazy" />
+      <div class="contour-caption">
+        <span class="contour-label">Medium Euler</span>
+        <span class="contour-tag">16,700 cells</span>
+      </div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_fine.png" alt="Mach contour — fine Euler grid" loading="lazy" />
+      <div class="contour-caption">
+        <span class="contour-label">Fine Euler</span>
+        <span class="contour-tag">64,677 cells</span>
+      </div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_rans.png" alt="Mach contour — RANS SST simulation" loading="lazy" />
+      <div class="contour-caption">
+        <span class="contour-label">RANS (SST)</span>
+        <span class="contour-tag">260,287 cells</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID CONVERGENCE -->
+  <div class="content reveal" style="margin-top: 64px;">
+    <div class="section-label">// Grid Convergence</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Euler mesh refinement</h3>
+    <div class="section-divider"></div>
+    <p>Three meshes with roughly 4&times; refinement between levels were used to assess grid convergence. The fine-grid Euler result converges to <strong>$C_{D,p} = 0.313$</strong> with an observed order of accuracy of $p = 2.8$.</p>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr>
+        <th>Grid</th>
+        <th>Cell Count</th>
+        <th>C<sub>D,p</sub></th>
+        <th>&Delta;C<sub>D,p</sub></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Coarse</td>
+        <td class="num">4,458</td>
+        <td class="num">0.36406</td>
+        <td class="num">&mdash;</td>
+      </tr>
+      <tr>
+        <td>Medium</td>
+        <td class="num">16,700</td>
+        <td class="num">0.32000</td>
+        <td class="num">&minus;13.77%</td>
+      </tr>
+      <tr>
+        <td>Fine</td>
+        <td class="num">64,677</td>
+        <td class="num">0.31305</td>
+        <td class="num">&minus;2.22%</td>
+      </tr>
+      <tr>
+        <td>Extrapolated (h &rarr; 0)</td>
+        <td class="num">&mdash;</td>
+        <td class="num">0.31175</td>
+        <td class="num">p = 2.8</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- DRAG BREAKDOWN -->
+  <div class="content reveal" style="margin-top: 64px;">
+    <div class="section-label">// Drag Breakdown</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">All models compared</h3>
+    <div class="section-divider"></div>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Component</th>
+        <th>C<sub>D</sub></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pure Newtonian</td>
+        <td>Pressure</td>
+        <td class="num">0.313</td>
+      </tr>
+      <tr>
+        <td>Modified Newtonian</td>
+        <td>Pressure</td>
+        <td class="num">0.313</td>
+      </tr>
+      <tr>
+        <td>Euler (fine)</td>
+        <td>Pressure</td>
+        <td class="num">0.313</td>
+      </tr>
+      <tr>
+        <td>RANS (SST)</td>
+        <td>Pressure</td>
+        <td class="num">0.342</td>
+      </tr>
+      <tr>
+        <td>RANS (SST)</td>
+        <td>Friction</td>
+        <td class="num">2 &times; 10<sup>&minus;6</sup></td>
+      </tr>
+      <tr>
+        <td>RANS (SST)</td>
+        <td>Total</td>
+        <td class="num">0.342</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="finding reveal">
+    <p><strong>Key result:</strong> Newtonian theory and Euler CFD predict identical forebody pressure drag ($C_{D,p} = 0.313$). RANS predicts ~9% higher due to viscous shock&ndash;boundary-layer interaction, despite negligible skin friction.</p>
+  </div>
+</section>
+
+<!-- CONCLUSIONS -->
+<section id="conclusions">
+  <div class="section-label">// 04 &mdash; Conclusions</div>
+  <h2 class="section-title">What this means</h2>
+  <div class="section-divider"></div>
+
+  <ul class="conclusion-list reveal">
+    <li><strong>Newtonian theory matches Euler CFD</strong> &mdash; predicts the forebody pressure drag of a Mach 5 tangent ogive to within a few percent of converged inviscid results ($C_{D,p} \approx 0.313$), demonstrating excellent performance for rapid preliminary analysis.</li>
+    <li><strong>Euler confirms Newtonian assumptions</strong> &mdash; grid-converged inviscid results show that numerical errors are small compared to physical modeling differences for this geometry and flow regime.</li>
+    <li><strong>Viscous effects add ~9&ndash;10%</strong> &mdash; RANS yields higher pressure drag ($C_{D,p} = 0.342$), highlighting the role of shock&ndash;boundary-layer interaction even when skin-friction drag itself is negligible.</li>
+    <li><strong>Practical implication</strong> &mdash; for early-stage hypersonic design of slender bodies at zero angle of attack, Newtonian theory provides a fast and reliable estimate. Euler or RANS should be reserved for higher-fidelity validation or viscosity-driven flow physics.</li>
+  </ul>
+
+  <div class="reveal" style="margin-top: 48px;">
+    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis" class="report-link">View on GitHub &rarr;</a>
+    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis/blob/main/docs/tangent_ogive_cfd_report.pdf" class="link-ghost">Full PDF report &rarr;</a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-copy">&copy; 2026 Samay Shah</span>
+  <a href="#hero" class="footer-back">Back to top &uarr;</a>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.opacity = '0.15';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.opacity = '0.3';
+    });
+  });
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
