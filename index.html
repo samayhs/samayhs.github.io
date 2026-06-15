@@ -278,10 +278,10 @@
   /* ABOUT */
   #about .about-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 80px;
     align-items: start;
-    max-width: 1100px;
+    max-width: 680px;
   }
   .about-text p {
     color: var(--muted2);
@@ -625,10 +625,10 @@
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-tag">// USC Viterbi · Aerospace Engineering · M.S. 2026</div>
+    <div class="hero-tag">// USC M.S. Aerospace '26 · Cal Poly SLO B.S. '24</div>
     <h1 class="hero-name">Samay<br/><em>Shah</em></h1>
     <p class="hero-role">CFD · Combustion · Physics ML</p>
-    <p class="hero-desc">I build high-fidelity simulations and machine learning tools for aerospace propulsion — from swirl-stabilized combustors to adaptive kinetics solvers.</p>
+    <p class="hero-desc">I build physics-informed machine learning and high-fidelity simulations for aerospace propulsion. My work runs from stiff combustion-chemistry surrogates to turbulence reconstruction from sparse sensors.</p>
     <div class="hero-cta">
       <a href="#projects" class="btn-primary">View Projects</a>
       <a href="#contact" class="btn-ghost">Get in touch →</a>
@@ -647,27 +647,9 @@
   <div class="section-divider"></div>
   <div class="about-grid reveal">
     <div class="about-text">
-      <p>I'm a Master's student in Aerospace Engineering at <strong>USC Viterbi</strong>, graduating May 2026. My work sits at the intersection of high-fidelity simulation and machine learning — specifically applying ML to accelerate combustion chemistry in CFD workflows.</p>
-      <p>Before USC, I worked as a <strong>Stress Analyst</strong> in the aerospace industry, giving me hands-on experience with structural analysis in production environments. I bring both research depth and engineering practicality to the problems I work on.</p>
-      <p>I'm actively pursuing roles in <strong>aerospace simulation, propulsion, and Physics-informed ML</strong> — particularly at companies pushing the boundary between cloud computing and simulation-driven design.</p>
-    </div>
-    <div class="about-stats">
-      <div class="stat-box">
-        <div class="stat-num">SU2</div>
-        <div class="stat-label">CFD Solver</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">v5</div>
-        <div class="stat-label">Cantera</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">PyTorch</div>
-        <div class="stat-label">ML Framework</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">M.S.</div>
-        <div class="stat-label">USC Viterbi '26</div>
-      </div>
+      <p>I earned my <strong>M.S. in Aerospace Engineering</strong> from USC Viterbi in May 2026, and my <strong>B.S. from Cal Poly San Luis Obispo</strong> in 2024. My work joins high-fidelity simulation with machine learning. I apply ML to accelerate combustion chemistry inside CFD workflows.</p>
+      <p>Before graduate school I spent about a year as a <strong>stress analyst at Structural Integrity Engineering</strong>. I ran FEM and hand analysis on FAA STC freighter conversions, including the A320, 737, and A330, and held checker and approver authority on that work.</p>
+      <p>I am pursuing full-time roles in <strong>aerospace simulation, propulsion, software, and physics-informed ML</strong>. I care most about problems that carry from a model to validated hardware.</p>
     </div>
   </div>
 
@@ -678,21 +660,21 @@
     <div class="skill-group">
       <div class="skill-group-name">CFD</div>
       <ul class="skill-list">
+        <li>Star-CCM+</li>
+        <li>ANSYS</li>
         <li>SU2</li>
-        <li>Gmsh</li>
-        <li>OpenFOAM</li>
-        <li>Mesh generation</li>
-        <li>Turbulence modeling</li>
+        <li>RANS / turbulence</li>
+        <li>Grid convergence</li>
       </ul>
     </div>
     <div class="skill-group">
       <div class="skill-group-name">Combustion</div>
       <ul class="skill-list">
         <li>Cantera</li>
+        <li>FFCM-2 mechanism</li>
         <li>Chemical kinetics</li>
-        <li>Premixed flames</li>
-        <li>Counterflow flames</li>
-        <li>Stiff ODE solvers</li>
+        <li>Stiff ODE integration</li>
+        <li>NASA-7 thermodynamics</li>
       </ul>
     </div>
     <div class="skill-group">
@@ -700,19 +682,19 @@
       <ul class="skill-list">
         <li>PyTorch</li>
         <li>PINNs</li>
-        <li>GNNs</li>
+        <li>Automatic differentiation</li>
         <li>Surrogate modeling</li>
-        <li>NumPy / Matplotlib</li>
+        <li>Python / MATLAB</li>
       </ul>
     </div>
     <div class="skill-group">
       <div class="skill-group-name">Structures</div>
       <ul class="skill-list">
         <li>Stress analysis</li>
-        <li>FEA</li>
-        <li>NASTRAN</li>
-        <li>Fatigue & fracture</li>
-        <li>Load cases</li>
+        <li>FEA (NX, FEMAP)</li>
+        <li>FAA STC modifications</li>
+        <li>Fatigue &amp; fracture</li>
+        <li>Load testing</li>
       </ul>
     </div>
   </div>
@@ -726,66 +708,52 @@
   <div class="projects-grid">
 
     <div class="project-card reveal">
-      <div class="project-num">01 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
-      <div class="project-title">Swirl-Stabilized H₂ Combustor CFD</div>
-      <div class="project-desc">High-fidelity 3D simulation of a hydrogen combustor using SU2. Modeled swirl-stabilized turbulent reacting flow with species transport, Gmsh mesh generation, and automated Python post-processing pipelines.</div>
+      <div class="project-num">01 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; flagship</div>
+      <div class="project-title">StateNet2 — PINN Combustion Surrogate</div>
+      <div class="project-desc">A PyTorch PINN surrogate that propagates stiff combustion chemistry across the 96-species FFCM-2 mechanism. It runs about 50 times faster than Cantera and holds R² above 0.999, with NASA-7 thermodynamics and autograd residuals enforcing the physics.</div>
       <div class="project-tags">
-        <span class="project-tag">SU2</span>
-        <span class="project-tag">Gmsh</span>
-        <span class="project-tag">Python</span>
-        <span class="project-tag">Turbulence</span>
-        <span class="project-tag">H₂ Combustion</span>
-      </div>
-      <div class="project-links">
-        <a class="project-link dim" href="#">GitHub →</a>
+        <span class="project-tag">PyTorch</span>
+        <span class="project-tag">PINNs</span>
+        <span class="project-tag">FFCM-2</span>
+        <span class="project-tag">Combustion</span>
+        <span class="project-tag">Surrogate</span>
       </div>
     </div>
 
     <div class="project-card reveal" style="transition-delay: 0.1s;">
       <div class="project-num">02 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
-      <div class="project-title">Adaptive Chemical Kinetics via ML</div>
-      <div class="project-desc">Physics-informed ML surrogate for combustion chemistry. Two-policy Jacobian-based adaptive solver in Cantera v5 — selects reduced mechanisms on-the-fly to cut stiff ODE solve times while preserving accuracy.</div>
+      <div class="project-title">Turbulent Channel-Flow PINN</div>
+      <div class="project-desc">A PINN that reconstructs 3D velocity and pressure fields from sparse wall-sensor data. Built on BLASTNet DNS at Re_τ = 544 with SIREN activations, it embeds the Navier-Stokes residuals in the loss and reaches roughly 1e-4 relative L2 error.</div>
       <div class="project-tags">
-        <span class="project-tag">Cantera</span>
         <span class="project-tag">PyTorch</span>
-        <span class="project-tag">Kinetics</span>
-        <span class="project-tag">Adaptive ODE</span>
-        <span class="project-tag">ML Surrogate</span>
-      </div>
-      <div class="project-links">
-        <a class="project-link dim" href="#">GitHub →</a>
+        <span class="project-tag">PINNs</span>
+        <span class="project-tag">SIREN</span>
+        <span class="project-tag">Navier-Stokes</span>
+        <span class="project-tag">Turbulence</span>
       </div>
     </div>
 
     <div class="project-card reveal" style="transition-delay: 0.2s;">
       <div class="project-num">03 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
-      <div class="project-title">Cantera Multi-Fuel Flame Suite</div>
-      <div class="project-desc">Systematic premixed and counterflow flame study across H₂, CH₄, and C₃H₈ at varying pressures. Pickle-based simulation cache, automated multi-subplot visualization, and laminar flame speed comparisons.</div>
+      <div class="project-title">Mach-5 Forebody CFD</div>
+      <div class="project-desc">Axisymmetric hypersonic analysis of a tangent-ogive forebody at Mach 5 in Star-CCM+. I ran Euler and RANS solutions, then used a grid convergence study with Richardson extrapolation to bound the numerical error.</div>
       <div class="project-tags">
-        <span class="project-tag">Cantera</span>
-        <span class="project-tag">Combustion</span>
-        <span class="project-tag">Matplotlib</span>
-        <span class="project-tag">Python</span>
-        <span class="project-tag">Flame Speed</span>
-      </div>
-      <div class="project-links">
-        <a class="project-link dim" href="#">GitHub →</a>
+        <span class="project-tag">Star-CCM+</span>
+        <span class="project-tag">RANS</span>
+        <span class="project-tag">Hypersonics</span>
+        <span class="project-tag">Grid Convergence</span>
       </div>
     </div>
 
     <div class="project-card reveal" style="transition-delay: 0.3s;">
-      <div class="project-num">04 &nbsp;—&nbsp; <span class="status-pip wip"></span>&nbsp; in progress</div>
-      <div class="project-title">Physics-Informed ML for Reacting Flows</div>
-      <div class="project-desc">Exploring GNN and PINN architectures for mesh-agnostic inference on combustion fields. Targeting scalable, cloud-native simulation workflows that reduce time-to-solution for complex reacting flow problems.</div>
+      <div class="project-num">04 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
+      <div class="project-title">Hat-Stiffened Fuselage Panel</div>
+      <div class="project-desc">A hat-stiffened fuselage panel designed in Siemens NX with parametric FEA. I fabricated and load-tested the part to failure against my predicted response, closing the loop from model to physical validation.</div>
       <div class="project-tags">
-        <span class="project-tag">PINNs</span>
-        <span class="project-tag">GNNs</span>
-        <span class="project-tag">PyTorch</span>
-        <span class="project-tag">Reacting Flow</span>
-        <span class="project-tag">Cloud Sim</span>
-      </div>
-      <div class="project-links">
-        <a class="project-link dim" href="#">GitHub →</a>
+        <span class="project-tag">Siemens NX</span>
+        <span class="project-tag">FEA</span>
+        <span class="project-tag">Structures</span>
+        <span class="project-tag">Load Testing</span>
       </div>
     </div>
 
@@ -801,18 +769,18 @@
 
     <div class="exp-item">
       <div class="exp-dot"></div>
-      <div class="exp-date">2024 — Present</div>
-      <div class="exp-title">Graduate Researcher — Combustion & ML</div>
-      <div class="exp-place">USC Viterbi School of Engineering</div>
-      <div class="exp-desc">Developing ML-accelerated chemical kinetics solvers for combustion CFD. Research focuses on reducing computational cost of stiff ODE systems through adaptive mechanism selection and surrogate modeling.</div>
+      <div class="exp-date">2024 — 2026</div>
+      <div class="exp-title">Graduate Researcher — Combustion & Physics-ML</div>
+      <div class="exp-place">Rui Ray Reacting Flows Research Group, USC Viterbi</div>
+      <div class="exp-desc">Built StateNet2, a PyTorch PINN surrogate for stiff 96-species combustion chemistry, reaching about 50x speedup over Cantera. Also reconstructed turbulent flow fields from sparse sensors by embedding the Navier-Stokes residuals directly in the loss.</div>
     </div>
 
     <div class="exp-item">
       <div class="exp-dot"></div>
       <div class="exp-date">Prior</div>
       <div class="exp-title">Stress Analyst</div>
-      <div class="exp-place">Aerospace Industry</div>
-      <div class="exp-desc">Performed structural stress analysis on aerospace components — fatigue, fracture, and static load cases. Applied FEA tools in a production engineering environment with flight-critical hardware.</div>
+      <div class="exp-place">Structural Integrity Engineering</div>
+      <div class="exp-desc">Performed FEM and hand-calc stress analysis for FAA STC modifications on commercial aircraft, including the A320, 737, and A330 freighter conversions. Held checker and approver authority on flight-critical structural work.</div>
     </div>
 
     <div class="exp-item">
@@ -820,7 +788,15 @@
       <div class="exp-date">2024 — 2026</div>
       <div class="exp-title">M.S. Aerospace Engineering</div>
       <div class="exp-place">University of Southern California</div>
-      <div class="exp-desc">Specialization in propulsion and computational fluid dynamics. Coursework in turbulence, combustion, and advanced numerical methods.</div>
+      <div class="exp-desc">Specialization in propulsion and computational fluid dynamics. Coursework in turbulence, combustion, machine learning for computational physics, and numerical methods.</div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-dot"></div>
+      <div class="exp-date">— 2024</div>
+      <div class="exp-title">B.S. Aerospace Engineering (Astronautics)</div>
+      <div class="exp-place">California Polytechnic State University, San Luis Obispo</div>
+      <div class="exp-desc">Foundation in astronautics, structures, and aerodynamics, with hands-on design and test coursework.</div>
     </div>
 
   </div>
@@ -832,7 +808,7 @@
   <h2 class="section-title">Let's talk</h2>
   <div class="section-divider"></div>
   <div class="contact-inner reveal">
-    <p class="contact-tagline">Open to full-time roles in aerospace simulation, propulsion, and Physics-informed ML.</p>
+    <p class="contact-tagline">Open to full-time roles in aerospace simulation, propulsion, software, and physics-informed ML.</p>
     <div class="contact-links">
       <a href="mailto:samayshah5@gmail.com" class="contact-row">
         <span class="contact-platform">Email</span>
@@ -843,6 +819,7 @@
         <span class="contact-platform">LinkedIn</span>
         <span class="contact-value">linkedin.com/in/samayhs</span>
         <span class="contact-arrow">→</span>
+      </a>
     </div>
   </div>
 </section>
@@ -898,3 +875,4 @@
 </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
