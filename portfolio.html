@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samay Shah — CAD & Structural Analysis Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9EDEE;
+    --paper-2:#DEE4E6;
+    --ink:#1B2430;
+    --ink-soft:#4B5563;
+    --line:#B9C2C6;
+    --line-soft:#CBD3D6;
+    --accent:#C3402B;
+    --accent-soft:#E7A99B;
+    --blue:#3E5C7A;
+    --ok:#3B6B4F;
+    --card:#F4F6F6;
+    --radius:2px;
+    --sheet-max:1120px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/100% 34px,
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/34px 100%,
+      var(--paper);
+    background-blend-mode:multiply, multiply, normal;
+    color:var(--ink);
+    font-family:'Source Sans 3', system-ui, sans-serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin:0;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+
+  a{color:var(--blue);}
+  a:focus-visible, button:focus-visible, .card:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+
+  .wrap{max-width:var(--sheet-max); margin:0 auto; padding:0 28px;}
+
+  /* ---------- Title block header (signature element) ---------- */
+  header.titleblock{
+    border-bottom:3px solid var(--ink);
+    background:var(--card);
+  }
+  .tb-grid{
+    max-width:var(--sheet-max);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    border:1.5px solid var(--ink);
+    margin-top:28px;
+    margin-bottom:0;
+  }
+  .tb-cell{
+    border-right:1.5px solid var(--ink);
+    padding:10px 14px;
+  }
+  .tb-cell:last-child{border-right:none;}
+  .tb-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .tb-value{
+    font-family:'Oswald', sans-serif;
+    font-size:15px;
+    letter-spacing:0.02em;
+  }
+  .tb-name{
+    grid-row: span 2;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .tb-name .tb-value{font-size:26px; font-weight:600;}
+  .tb-name .role{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    margin-top:4px;
+    letter-spacing:0.06em;
+  }
+  .tb-row2{
+    grid-column: 2 / 5;
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top:1.5px solid var(--ink);
+  }
+  .tb-row2 .tb-cell{border-top:0;}
+  nav.tb-nav{
+    max-width:var(--sheet-max);
+    margin:0 auto;
+    display:flex;
+    gap:22px;
+    padding:12px 0 20px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  nav.tb-nav a{color:var(--ink-soft); text-decoration:none; border-bottom:1px solid transparent;}
+  nav.tb-nav a:hover{color:var(--accent); border-bottom-color:var(--accent);}
+
+  @media (max-width:700px){
+    .tb-grid{grid-template-columns:1fr 1fr;}
+    .tb-name{grid-row:auto; grid-column:1/3; border-bottom:1.5px solid var(--ink);}
+    .tb-row2{grid-column:1/3; grid-template-columns:1fr 1fr;}
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{padding:56px 0 40px;}
+  .hero .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    letter-spacing:0.1em;
+    margin-bottom:14px;
+  }
+  .hero h1{font-size:clamp(28px, 4vw, 44px); max-width:820px; line-height:1.15; font-weight:600;}
+  .hero p.lede{
+    max-width:640px;
+    font-size:17px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+
+  /* ---------- Convergence strip (data-native signature, not a generic stat) ---------- */
+  .convergence{
+    margin-top:36px;
+    border:1.5px solid var(--ink);
+    background:var(--card);
+  }
+  .convergence-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:10px 16px;
+    border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  table.conv-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+  }
+  table.conv-table th, table.conv-table td{
+    text-align:left;
+    padding:9px 16px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  table.conv-table th{
+    color:var(--ink-soft);
+    font-weight:500;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  table.conv-table tr:last-child td{border-bottom:none;}
+  .conv-bar{
+    display:inline-block;
+    height:8px;
+    background:linear-gradient(90deg, var(--blue), var(--accent));
+    margin-left:10px;
+    vertical-align:middle;
+    border-radius:1px;
+  }
+  .tag-converged{
+    color:var(--ok);
+    font-weight:600;
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section{padding:52px 0;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:10px;
+    margin-bottom:30px;
+  }
+  .section-head .sheet-no{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--accent);
+  }
+  .section-head h2{font-size:22px;}
+  .section-note{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-left:auto;
+  }
+
+  /* ---------- Project card ---------- */
+  .card{
+    border:1.5px solid var(--ink);
+    background:var(--card);
+    margin-bottom:34px;
+  }
+  .card.flagship{
+    border-width:2px;
+  }
+  .card-tb{
+    display:grid;
+    grid-template-columns: 2fr repeat(4, 1fr);
+    border-bottom:1.5px solid var(--ink);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+  }
+  .card-tb div{
+    padding:8px 12px;
+    border-right:1px solid var(--line);
+  }
+  .card-tb div:last-child{border-right:none;}
+  .card-tb .k{color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; font-size:9.5px; margin-bottom:2px;}
+  .card-tb .v{font-weight:700; color:var(--ink);}
+  @media (max-width:700px){
+    .card-tb{grid-template-columns:1fr 1fr;}
+  }
+
+  .card-body{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:0;
+  }
+  .card.flagship .card-body{grid-template-columns: 1.1fr 1fr;}
+  @media (max-width:820px){
+    .card-body{grid-template-columns:1fr;}
+  }
+
+  .placeholder-img{
+    border-right:1.5px solid var(--ink);
+    background:
+      repeating-linear-gradient(45deg, var(--paper-2), var(--paper-2) 8px, var(--card) 8px, var(--card) 16px);
+    min-height:260px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    text-align:center;
+  }
+  @media (max-width:820px){
+    .placeholder-img{border-right:none; border-bottom:1.5px solid var(--ink);}
+  }
+  .placeholder-inner{
+    border:1.5px dashed var(--ink-soft);
+    background:var(--card);
+    padding:16px 18px;
+    max-width:260px;
+  }
+  .placeholder-inner .ph-icon{
+    font-family:'JetBrains Mono', monospace;
+    font-size:22px;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  .placeholder-inner .ph-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+
+  .card-text{padding:22px 24px;}
+  .card-text h3{font-size:18px; margin-bottom:6px;}
+  .card-text .dek{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:14px;
+  }
+  .card-text p{margin:0 0 12px; color:var(--ink-soft); font-size:14.5px;}
+  .card-text p strong{color:var(--ink); font-weight:600;}
+
+  .spec-list{
+    list-style:none;
+    padding:0;
+    margin:14px 0 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    border-top:1px solid var(--line-soft);
+  }
+  .spec-list li{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 0;
+    border-bottom:1px solid var(--line-soft);
+    color:var(--ink-soft);
+  }
+  .spec-list li span:last-child{color:var(--ink); font-weight:600;}
+
+  .result-flag{
+    display:inline-block;
+    margin-top:14px;
+    padding:6px 10px;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.03em;
+  }
+  .result-flag.pending{background:transparent; color:var(--ink-soft); border:1px dashed var(--ink-soft);}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:3px solid var(--ink);
+    padding:34px 0 44px;
+    margin-top:20px;
+  }
+  footer .tb-grid-mini{
+    display:flex;
+    flex-wrap:wrap;
+    gap:28px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+  }
+  footer .tb-grid-mini a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line);}
+  footer .tb-grid-mini a:hover{color:var(--accent); border-bottom-color:var(--accent);}
+  footer .fine{
+    margin-top:18px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="tb-grid">
+    <div class="tb-cell tb-name">
+      <div class="tb-value">SAMAY SHAH</div>
+      <div class="role">AEROSPACE STRUCTURES / CAD &amp; FEA</div>
+    </div>
+    <div class="tb-cell">
+      <div class="tb-label">Drawn by</div>
+      <div class="tb-value">S. SHAH</div>
+    </div>
+    <div class="tb-cell">
+      <div class="tb-label">Sheet</div>
+      <div class="tb-value">1 OF 1</div>
+    </div>
+    <div class="tb-cell">
+      <div class="tb-label">Rev</div>
+      <div class="tb-value">A</div>
+    </div>
+    <div class="tb-row2">
+      <div class="tb-cell">
+        <div class="tb-label">Units</div>
+        <div class="tb-value">MPa / mm</div>
+      </div>
+      <div class="tb-cell">
+        <div class="tb-label">Tools</div>
+        <div class="tb-value">NX · NASTRAN</div>
+      </div>
+      <div class="tb-cell">
+        <div class="tb-label">Status</div>
+        <div class="tb-value" style="color:var(--ok)">ACTIVE</div>
+      </div>
+    </div>
+  </div>
+  <nav class="tb-nav">
+    <a href="#flagship">Flagship</a>
+    <a href="#projects">All Projects</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="eyebrow">CAD + FEA PORTFOLIO</div>
+    <h1>CAD and structural analysis work.</h1>
+    <p class="lede">
+      MS Aerospace Engineering (USC), FAA STC/DER checker and approver on A320 P2F, 737 Combi,
+      and A330 P2F structural programs. The projects below pair parametric CAD models with
+      finite element analysis.
+    </p>
+
+    <div class="convergence">
+      <div class="convergence-head">
+        <span>Mesh Convergence Study &mdash; Fuselage Skin Section</span>
+        <span>NX NASTRAN · 3D TETRA10</span>
+      </div>
+      <table class="conv-table">
+        <thead>
+          <tr><th>Mesh</th><th>Elements</th><th>Nodes</th><th>Element Size</th><th>Max Stress</th><th>Max Displacement</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>V1</td><td>65,732</td><td>133,036</td><td>78.1 mm</td><td>259.19 MPa</td><td>23.94 mm</td></tr>
+          <tr><td>V2</td><td>194,905</td><td>392,468</td><td>45 mm</td><td>270.25 MPa</td><td>24.88 mm</td></tr>
+          <tr><td>V3</td><td>628,603</td><td>1,261,898</td><td>25 mm</td><td>272.59 MPa <span class="conv-bar" style="width:60px"></span></td><td>24.95 mm <span class="tag-converged">&lt; 5% Δ</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="flagship">
+    <div class="section-head">
+      <span class="sheet-no">SHEET 01</span>
+      <h2>Flagship Project</h2>
+      <span class="section-note">Parametric stiffened fuselage · linear static FEA</span>
+    </div>
+
+    <article class="card flagship">
+      <div class="card-tb">
+        <div><div class="k">Drawing</div><div class="v">FUSELAGE&#8209;HATS&#8209;001</div></div>
+        <div><div class="k">Material</div><div class="v">AL 6061 / AL 2024-T3</div></div>
+        <div><div class="k">Skin Dia.</div><div class="v">3.76 m</div></div>
+        <div><div class="k">Length</div><div class="v">5.0 m</div></div>
+        <div><div class="k">Skin t</div><div class="v">10 mm</div></div>
+      </div>
+      <div class="card-body">
+        <div class="placeholder-img">
+          <div class="placeholder-inner">
+            <div class="ph-icon">[ ]</div>
+            <div class="ph-label">ADD RENDER<br>Isometric of stiffened cylinder<br>with hat-stiffener cutaway,<br>+ Von-Mises contour overlay</div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3>Stiffened Fuselage Section &mdash; Skin, Hat Stringers &amp; Pressurization FEA</h3>
+          <div class="dek">Parametric NX model &rarr; NASTRAN linear static &rarr; 3-mesh convergence</div>
+          <p>
+            A fully parametric fuselage skin section built in NX &mdash; diameter, cylinder length,
+            skin thickness, and hat-stiffener count and thickness are all Expression-driven and
+            merged into a single solid body. The section includes a window and a door cutout with
+            filleted corners, modeled after a narrow-body reference geometry.
+          </p>
+          <p>
+            <strong>Loading:</strong> uniform internal pressure of 0.07 MPa on the inner skin surface
+            to simulate cabin pressurization, with one end fixed and the other constrained in
+            translation to represent a segment supported by adjacent fuselage bays.
+          </p>
+          <p>
+            <strong>Result:</strong> stress concentrated at the window and door corners as expected,
+            with the peak occurring in the skin bridge between the two cutouts &mdash; converging to
+            <strong>272.6 MPa</strong> max Von-Mises stress and <strong>24.95 mm</strong> max
+            displacement, with V2&rarr;V3 mesh refinement agreeing to within 5%.
+          </p>
+          <ul class="spec-list">
+            <li><span>Mesh type</span><span>3D Tetra10</span></li>
+            <li><span>Finest mesh</span><span>628,603 elements / 1.26M nodes</span></li>
+            <li><span>Material (skin)</span><span>Al 2024-T3, E = 73 GPa, ν = 0.33</span></li>
+            <li><span>Convergence</span><span class="tag-converged">Achieved, V2/V3 &lt; 5% Δ</span></li>
+          </ul>
+          <span class="result-flag">Converged: 272.6 MPa / 25.0 mm</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section id="projects">
+    <div class="section-head">
+      <span class="sheet-no">SHEET 02</span>
+      <h2>Additional Projects</h2>
+      <span class="section-note">CAD modeling · print reproduction · assemblies</span>
+    </div>
+
+    <article class="card">
+      <div class="card-tb">
+        <div><div class="k">Drawing</div><div class="v">ROTOR&#8209;NX&#8209;001</div></div>
+        <div><div class="k">Material</div><div class="v">AISI 4340 STEEL</div></div>
+        <div><div class="k">OD</div><div class="v">7.650 in</div></div>
+        <div><div class="k">ID</div><div class="v">5.550 in</div></div>
+        <div><div class="k">Thickness</div><div class="v">0.180 in</div></div>
+      </div>
+      <div class="card-body">
+        <div class="placeholder-img">
+          <div class="placeholder-inner">
+            <div class="ph-icon">[ ]</div>
+            <div class="ph-label">ADD RENDER<br>Brake rotor, front-on view<br>with vane pattern visible</div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3>Vented Brake Rotor &mdash; Print-to-CAD Reproduction</h3>
+          <div class="dek">Timed exam build, NX, from engineering drawing</div>
+          <p>
+            Built from a fully dimensioned engineering print under exam conditions &mdash;
+            40 vented holes, 8 curved cooling vanes, 4 mounting buttons, and a 2:1 detail view
+            of the vane profile, all reproduced to called-out tolerances in AISI 4340 steel.
+          </p>
+          <p>
+            Shows basic print-reading and CAD accuracy: reproducing a fully toleranced
+            drawing exactly, under time constraints.
+          </p>
+          <span class="result-flag pending">Print-accurate reproduction</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-tb">
+        <div><div class="k">Drawing</div><div class="v">FLANGE&#8209;ASM&#8209;002</div></div>
+        <div><div class="k">Type</div><div class="v">FORGED BUTT-WELD</div></div>
+        <div><div class="k">Bolt Circle</div><div class="v">8× holes</div></div>
+        <div><div class="k">Pipe Size</div><div class="v">DN 2"</div></div>
+        <div><div class="k">Fit</div><div class="v">Pattern, perfect</div></div>
+      </div>
+      <div class="card-body">
+        <div class="placeholder-img">
+          <div class="placeholder-inner">
+            <div class="ph-icon">[ ]</div>
+            <div class="ph-label">ADD RENDER<br>Exploded view: flange pair,<br>gasket, and bolt pattern</div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3>Bolted Flange Assembly &mdash; Mating Parts &amp; Fastener Pattern</h3>
+          <div class="dek">Multi-body assembly, McMaster-referenced geometry</div>
+          <p>
+            A forged butt-weld flange pair modeled after a standard McMaster-Carr pipe-size-2
+            reference, with an 8-hole bolt circle, a compressed gasket extrusion between mating
+            faces, and a single bolt patterned into all 8 holes at a perfect fit.
+          </p>
+          <p>
+            Covers assembly-level modeling: mating constraints, pattern features, and
+            fit between parts, rather than a single component in isolation.
+          </p>
+          <span class="result-flag pending">Assembly &amp; fastener pattern</span>
+        </div>
+      </div>
+    </article>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="tb-grid-mini">
+      <a href="mailto:youremail@example.com">EMAIL</a>
+      <a href="https://linkedin.com/in/yourprofile">LINKEDIN</a>
+      <a href="https://github.com/samayhs">GITHUB</a>
+      <a href="https://grabcad.com/">GRABCAD</a>
+      <a href="/">&larr; BACK TO HOME</a>
+    </div>
+    <div class="fine">SAMAY SHAH &mdash; PORTFOLIO REV A &mdash; PLACEHOLDER RENDERS PENDING FINAL UPLOAD</div>
+  </div>
+</footer>
+
+</body>
+</html>
