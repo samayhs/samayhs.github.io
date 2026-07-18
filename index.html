@@ -124,7 +124,7 @@
     position: absolute;
     width: 600px; height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(74,222,128,0.04) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(254,156,0,0.05) 0%, transparent 70%);
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -446,11 +446,11 @@
     color: var(--accent);
     text-decoration: none;
     letter-spacing: 0.05em;
-    border-bottom: 0.5px solid rgba(74,222,128,0.3);
+    border-bottom: 0.5px solid rgba(254,156,0,0.3);
     padding-bottom: 1px;
     transition: color 0.2s, border-color 0.2s;
   }
-  .project-link:hover { color: #86efac; border-color: rgba(134,239,172,0.5); }
+  .project-link:hover { color: var(--text); border-color: rgba(254,156,0,0.55); }
   .project-link.dim { color: var(--muted); border-color: var(--border2); }
   .project-link.dim:hover { color: var(--muted2); border-color: var(--border2); }
 
@@ -754,6 +754,9 @@
         <span class="project-tag">FEA</span>
         <span class="project-tag">Structures</span>
         <span class="project-tag">Load Testing</span>
+      </div>
+      <div class="project-links">
+        <a href="portfolio.html" class="project-link">CAD &amp; FEA Portfolio →</a>
       </div>
     </div>
 
