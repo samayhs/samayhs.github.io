@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Tangent Ogive CFD Analysis — Samay Shah</title>
+<title>Tangent Ogive CFD — Published Data — Samay Shah</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 <script>
@@ -575,6 +575,21 @@
 </style>
 </head>
 <body>
+<style>
+  .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;max-width:960px;margin:24px 0 40px;}
+  @media(max-width:768px){.cfg-grid{grid-template-columns:1fr;}}
+  .cfg-col{background:var(--bg2);border:0.5px solid var(--border);padding:28px;}
+  .cfg-col h3{font-family:'Instrument Serif',serif;font-weight:400;font-size:20px;color:var(--text);margin-bottom:6px;line-height:1.2;}
+  .cfg-col .cfg-sub{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+  .cfg-list{list-style:none;font-family:'Space Mono',monospace;font-size:12px;border-top:0.5px solid var(--border);}
+  .cfg-list li{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:0.5px solid var(--border);color:var(--muted);}
+  .cfg-list li span:last-child{color:var(--text);text-align:right;}
+  .downloads-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;margin-top:8px;}
+  .ref-list{list-style:none;max-width:820px;margin-top:44px;border-top:0.5px solid var(--border);padding-top:24px;}
+  .ref-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+  .ref-list li{font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:10px;}
+  .ref-list li b{color:var(--text);font-weight:500;}
+</style>
 
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
@@ -582,11 +597,10 @@
 <nav id="nav">
   <a href="https://samayhs.github.io" class="nav-logo">S.Shah</a>
   <ul class="nav-links">
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#methods">Methods</a></li>
-    <li><a href="#results">Results</a></li>
-    <li><a href="#conclusions">Conclusions</a></li>
-    <li><a href="data.html">Data</a></li>
+    <li><a href="index.html">Writeup</a></li>
+    <li><a href="#case">Case</a></li>
+    <li><a href="#numerics">Numerics</a></li>
+    <li><a href="#drag">Drag</a></li>
   </ul>
 </nav>
 
@@ -595,291 +609,233 @@
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <a href="https://samayhs.github.io/#projects" class="hero-back">&larr; Back to projects</a>
-    <div class="hero-tag">// CFD Project Writeup</div>
-    <h1 class="hero-name">High-Speed Flow over a<br/><em>Tangent Ogive</em></h1>
-    <p class="hero-desc">Evaluating Newtonian impact theory against inviscid Euler and viscous RANS CFD for predicting pressure drag on a tangent ogive nose at Mach 5.</p>
+    <a href="index.html" class="hero-back">&larr; Back to writeup</a>
+    <div class="hero-tag">// CFD Data Sheet</div>
+    <h1 class="hero-name">Tangent Ogive &mdash;<br/><em>Published Data</em></h1>
+    <p class="hero-desc">Complete case definition, solver configuration, grid-convergence, and drag data for the Mach&nbsp;5 tangent ogive study &mdash; Newtonian theory vs inviscid Euler vs viscous RANS, solved in Star-CCM+.</p>
     <div class="hero-meta">
-      <div class="meta-item">
-        <span class="meta-label">Mach</span>
-        <span class="meta-value">5.0</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Solver</span>
-        <span class="meta-value">Star-CCM+</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Models</span>
-        <span class="meta-value">Euler + RANS (SST)</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Turbulence</span>
-        <span class="meta-value">k&ndash;&omega; SST</span>
-      </div>
+      <div class="meta-item"><span class="meta-label">Mach</span><span class="meta-value">5.0</span></div>
+      <div class="meta-item"><span class="meta-label">AoA</span><span class="meta-value">0&deg;</span></div>
+      <div class="meta-item"><span class="meta-label">Solver</span><span class="meta-value">Star-CCM+</span></div>
+      <div class="meta-item"><span class="meta-label">Models</span><span class="meta-value">Euler + RANS (SST)</span></div>
     </div>
   </div>
 </section>
 
-<!-- OVERVIEW -->
-<section id="overview">
-  <div class="section-label">// 01 &mdash; Overview</div>
-  <h2 class="section-title">Problem statement</h2>
+<!-- CASE DEFINITION -->
+<section id="case">
+  <div class="section-label">// 01 &mdash; Case Definition</div>
+  <h2 class="section-title">Freestream conditions</h2>
   <div class="section-divider"></div>
-  <div class="content reveal">
-    <p>The tangent ogive is one of the most common forebody shapes in high-speed aerodynamics, used in everything from projectiles to launch vehicles. Its curved profile weakens the bow shock relative to blunt geometries, reducing wave drag at supersonic and hypersonic speeds.</p>
-    <p>This study evaluates how well <strong>Newtonian impact theory</strong>&mdash;a simple analytical model&mdash;predicts forebody pressure drag compared to full CFD. An axisymmetric tangent ogive with a short cylindrical afterbody is analyzed at <strong>zero angle of attack</strong> and <strong>Mach 5</strong>, comparing Newtonian theory against inviscid Euler and viscous RANS simulations.</p>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Parameter</th><th>Symbol</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Freestream Mach</td><td class="num">M&#8734;</td><td class="num">5.0</td></tr>
+      <tr><td>Angle of attack</td><td class="num">&alpha;</td><td class="num">0&deg;</td></tr>
+      <tr><td>Freestream temperature</td><td class="num">T&#8734;</td><td class="num">300 K</td></tr>
+      <tr><td>Freestream pressure</td><td class="num">P&#8734;</td><td class="num">101,325 Pa</td></tr>
+      <tr><td>Gas model</td><td class="num">&mdash;</td><td class="num">Perfect air</td></tr>
+      <tr><td>Ratio of specific heats</td><td class="num">&gamma;</td><td class="num">1.4</td></tr>
+      <tr><td>Specific gas constant</td><td class="num">R</td><td class="num">287 J/kg&middot;K</td></tr>
+      <tr><td>Reynolds number</td><td class="num">Re</td><td class="num">5.533 &times; 10&#8312;</td></tr>
+    </tbody>
+  </table>
+
+  <div class="content reveal" style="margin-top: 48px;">
+    <div class="section-label">// Geometry</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Ogive &amp; afterbody</h3>
+    <div class="section-divider"></div>
   </div>
 
-  <div class="params-grid reveal">
-    <div class="param-box">
-      <div class="param-value">5.0 m</div>
-      <div class="param-label">Nose length (L)</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">1.9 m</div>
-      <div class="param-label">Base radius (R)</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">1.23</div>
-      <div class="param-label">Fineness ratio (L/D)</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">M = 5</div>
-      <div class="param-label">Freestream Mach</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">300 K</div>
-      <div class="param-label">Freestream temp</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">101,325 Pa</div>
-      <div class="param-label">Freestream pressure</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">&gamma; = 1.4</div>
-      <div class="param-label">Ratio of specific heats</div>
-    </div>
-    <div class="param-box">
-      <div class="param-value">5.5 &times; 10&#8312;</div>
-      <div class="param-label">Reynolds number</div>
-    </div>
-  </div>
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Parameter</th><th>Symbol</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nose length</td><td class="num">L</td><td class="num">5.0 m</td></tr>
+      <tr><td>Base radius</td><td class="num">R = D/2</td><td class="num">1.9 m</td></tr>
+      <tr><td>Base diameter</td><td class="num">D</td><td class="num">3.8 m</td></tr>
+      <tr><td>Fineness ratio</td><td class="num">L/D</td><td class="num">1.23</td></tr>
+      <tr><td>Afterbody</td><td class="num">&mdash;</td><td class="num">cylinder, R &times; 1.5R</td></tr>
+      <tr><td>Reference area</td><td class="num">S&#8341; = &pi;R&sup2;</td><td class="num">11.34 m&sup2;</td></tr>
+    </tbody>
+  </table>
 </section>
 
-<!-- METHODS -->
-<section id="methods">
-  <div class="section-label">// 02 &mdash; Methods</div>
-  <h2 class="section-title">Three approaches</h2>
+<!-- NEWTONIAN MODEL -->
+<section id="newtonian">
+  <div class="section-label">// 02 &mdash; Newtonian Model</div>
+  <h2 class="section-title">Analytical constants</h2>
   <div class="section-divider"></div>
-
-  <div class="method-grid reveal">
-    <div class="method-card">
-      <div class="method-num">01</div>
-      <div class="method-title">Newtonian Impact Theory</div>
-      <div class="method-desc">Analytical model assuming surface pressure depends only on local surface inclination angle. Both pure Newtonian ($C_{p,\max}=2$) and modified Newtonian ($C_{p,\max}=1.6$) variants were computed and validated against the Mayo tables.</div>
-      <div class="method-tags">
-        <span class="method-tag">Analytical</span>
-        <span class="method-tag">Python</span>
-        <span class="method-tag">Mayo Tables</span>
-      </div>
-    </div>
-
-    <div class="method-card">
-      <div class="method-num">02</div>
-      <div class="method-title">Inviscid Euler CFD</div>
-      <div class="method-desc">Compressible Euler equations solved on three progressively refined meshes (4,458 to 64,677 cells) using a 2nd-order upwind flux scheme with gradient limiting. Grid convergence study performed.</div>
-      <div class="method-tags">
-        <span class="method-tag">Star-CCM+</span>
-        <span class="method-tag">Coupled Flow</span>
-        <span class="method-tag">Axisymmetric</span>
-        <span class="method-tag">Grid Study</span>
-      </div>
-    </div>
-
-    <div class="method-card">
-      <div class="method-num">03</div>
-      <div class="method-title">Viscous RANS (SST)</div>
-      <div class="method-desc">Compressible RANS with Menter's $k$&ndash;$\omega$ SST turbulence model on a 260,287-cell mesh. 2nd-order upwind convection, adaptive CFL, and a wall-resolved boundary layer with growth ratio of 1.2.</div>
-      <div class="method-tags">
-        <span class="method-tag">Star-CCM+</span>
-        <span class="method-tag">SST</span>
-        <span class="method-tag">Coupled Flow</span>
-        <span class="method-tag">260K cells</span>
-      </div>
-    </div>
-  </div>
 
   <div class="content reveal">
     <div class="equation-block">
       <div class="equation-label">Newtonian pressure coefficient</div>
       $$C_p(\theta) = C_{p,\max}\,\sin^2\!\theta$$
     </div>
-    <div class="equation-block">
-      <div class="equation-label">Modified Newtonian stagnation pressure</div>
-      $$C_{p,\max}(M_\infty, \gamma) = \frac{2}{\gamma M_\infty^2}\left[\frac{2\gamma M_\infty^2 - (\gamma-1)}{\gamma+1} - 1\right] = 1.6$$
-    </div>
-    <p>The forebody pressure drag was computed by integrating axial pressure over the ogive surface with reference area $S_{\text{ref}} = \pi R^2 = 11.34\,\text{m}^2$.</p>
+    <p>Surface pressure depends only on the local inclination angle $\theta$ between the surface and the freestream. Both the pure and modified stagnation coefficients were evaluated and validated against the <strong>Mayo tables</strong>.</p>
   </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Variant</th><th>C<sub>p,max</sub></th><th>Basis</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Pure Newtonian</td><td class="num">2.0</td><td>Impact theory limit</td></tr>
+      <tr><td>Modified Newtonian</td><td class="num">1.6</td><td>M&#8734; = 5, &gamma; = 1.4 stagnation</td></tr>
+    </tbody>
+  </table>
 </section>
 
-<!-- RESULTS -->
-<section id="results">
-  <div class="section-label">// 03 &mdash; Results</div>
-  <h2 class="section-title">Flow visualization</h2>
+<!-- SOLVER CONFIGURATION -->
+<section id="numerics">
+  <div class="section-label">// 03 &mdash; Solver Configuration</div>
+  <h2 class="section-title">Numerics (Star-CCM+)</h2>
+  <div class="section-divider"></div>
+
+  <div class="cfg-grid reveal">
+    <div class="cfg-col">
+      <h3>Inviscid Euler</h3>
+      <div class="cfg-sub">Compressible Euler &middot; steady</div>
+      <ul class="cfg-list">
+        <li><span>Flow model</span><span>Coupled implicit</span></li>
+        <li><span>Convective flux</span><span>2nd-order upwind</span></li>
+        <li><span>Gradient limiting</span><span>Enabled</span></li>
+        <li><span>Time integration</span><span>Implicit, steady</span></li>
+        <li><span>CFL</span><span>0.5 (fixed)</span></li>
+        <li><span>Convergence</span><span>Residuals + drag monitor</span></li>
+      </ul>
+    </div>
+    <div class="cfg-col">
+      <h3>Viscous RANS</h3>
+      <div class="cfg-sub">k&ndash;&omega; SST &middot; steady</div>
+      <ul class="cfg-list">
+        <li><span>Flow model</span><span>Coupled implicit</span></li>
+        <li><span>Convective flux</span><span>2nd-order upwind</span></li>
+        <li><span>Turbulence</span><span>k&ndash;&omega; SST</span></li>
+        <li><span>Turbulence disc.</span><span>1st-order upwind</span></li>
+        <li><span>Wall treatment</span><span>Low-y&#8314;, resolved</span></li>
+        <li><span>Time integration</span><span>Implicit, steady</span></li>
+        <li><span>CFL adaptation</span><span>0.2 &ndash; 1.0, init 0.5</span></li>
+        <li><span>First cell height</span><span>y&#8321; &asymp; 0.006</span></li>
+        <li><span>Wall growth ratio</span><span>1.2</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="content reveal" style="margin-top: 40px;">
+    <div class="section-label">// Mesh Sizes</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Grids used</h3>
+    <div class="section-divider"></div>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Grid</th><th>Model</th><th>Cell Count</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Coarse</td><td>Euler</td><td class="num">4,458</td></tr>
+      <tr><td>Medium</td><td>Euler</td><td class="num">16,700</td></tr>
+      <tr><td>Fine</td><td>Euler</td><td class="num">64,677</td></tr>
+      <tr><td>RANS</td><td>SST</td><td class="num">260,287</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- GRID CONVERGENCE -->
+<section id="convergence">
+  <div class="section-label">// 04 &mdash; Grid Convergence</div>
+  <h2 class="section-title">Euler mesh refinement</h2>
   <div class="section-divider"></div>
 
   <div class="content reveal">
-    <p>Mach number contours from the Euler simulations on progressively refined grids. As the mesh is refined, the <strong>bow shock becomes sharper</strong> and more localized, indicating reduced numerical dissipation and improved resolution of shock curvature.</p>
-  </div>
-
-  <div class="contour-gallery reveal">
-    <div class="contour-item">
-      <img src="assets/mach_coarse.png" alt="Mach contour — coarse Euler grid" loading="lazy" />
-      <div class="contour-caption">
-        <span class="contour-label">Coarse Euler</span>
-        <span class="contour-tag">4,458 cells</span>
-      </div>
-    </div>
-    <div class="contour-item">
-      <img src="assets/mach_medium.png" alt="Mach contour — medium Euler grid" loading="lazy" />
-      <div class="contour-caption">
-        <span class="contour-label">Medium Euler</span>
-        <span class="contour-tag">16,700 cells</span>
-      </div>
-    </div>
-    <div class="contour-item">
-      <img src="assets/mach_fine.png" alt="Mach contour — fine Euler grid" loading="lazy" />
-      <div class="contour-caption">
-        <span class="contour-label">Fine Euler</span>
-        <span class="contour-tag">64,677 cells</span>
-      </div>
-    </div>
-    <div class="contour-item">
-      <img src="assets/mach_rans.png" alt="Mach contour — RANS SST simulation" loading="lazy" />
-      <div class="contour-caption">
-        <span class="contour-label">RANS (SST)</span>
-        <span class="contour-tag">260,287 cells</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- GRID CONVERGENCE -->
-  <div class="content reveal" style="margin-top: 64px;">
-    <div class="section-label">// Grid Convergence</div>
-    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Euler mesh refinement</h3>
-    <div class="section-divider"></div>
-    <p>Three meshes with roughly 4&times; refinement between levels were used to assess grid convergence. The fine-grid Euler result converges to <strong>$C_{D,p} = 0.313$</strong> with an observed order of accuracy of $p = 2.8$.</p>
+    <p>Three meshes with roughly 4&times; refinement between levels. The fine-grid result converges to <strong>$C_{D,p} = 0.313$</strong> with a Richardson-extrapolated ($h\to0$) value of 0.31175 and an observed order of accuracy $p = 2.8$.</p>
   </div>
 
   <table class="data-table reveal">
     <thead>
-      <tr>
-        <th>Grid</th>
-        <th>Cell Count</th>
-        <th>C<sub>D,p</sub></th>
-        <th>&Delta;C<sub>D,p</sub></th>
-      </tr>
+      <tr><th>Grid</th><th>Cell Count</th><th>C<sub>D,p</sub></th><th>&Delta;C<sub>D,p</sub></th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Coarse</td>
-        <td class="num">4,458</td>
-        <td class="num">0.36406</td>
-        <td class="num">&mdash;</td>
-      </tr>
-      <tr>
-        <td>Medium</td>
-        <td class="num">16,700</td>
-        <td class="num">0.32000</td>
-        <td class="num">&minus;13.77%</td>
-      </tr>
-      <tr>
-        <td>Fine</td>
-        <td class="num">64,677</td>
-        <td class="num">0.31305</td>
-        <td class="num">&minus;2.22%</td>
-      </tr>
-      <tr>
-        <td>Extrapolated (h &rarr; 0)</td>
-        <td class="num">&mdash;</td>
-        <td class="num">0.31175</td>
-        <td class="num">p = 2.8</td>
-      </tr>
+      <tr><td>Coarse</td><td class="num">4,458</td><td class="num">0.36406</td><td class="num">&mdash;</td></tr>
+      <tr><td>Medium</td><td class="num">16,700</td><td class="num">0.32000</td><td class="num">&minus;13.77%</td></tr>
+      <tr><td>Fine</td><td class="num">64,677</td><td class="num">0.31305</td><td class="num">&minus;2.22%</td></tr>
+      <tr><td>Extrapolated (h &rarr; 0)</td><td class="num">&mdash;</td><td class="num">0.31175</td><td class="num">p = 2.8</td></tr>
     </tbody>
   </table>
+</section>
 
-  <!-- DRAG BREAKDOWN -->
-  <div class="content reveal" style="margin-top: 64px;">
-    <div class="section-label">// Drag Breakdown</div>
-    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">All models compared</h3>
-    <div class="section-divider"></div>
-  </div>
+<!-- DRAG BREAKDOWN -->
+<section id="drag">
+  <div class="section-label">// 05 &mdash; Drag Breakdown</div>
+  <h2 class="section-title">All models compared</h2>
+  <div class="section-divider"></div>
 
   <table class="data-table reveal">
     <thead>
-      <tr>
-        <th>Model</th>
-        <th>Component</th>
-        <th>C<sub>D</sub></th>
-      </tr>
+      <tr><th>Model</th><th>Component</th><th>C<sub>D</sub></th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Pure Newtonian</td>
-        <td>Pressure</td>
-        <td class="num">0.313</td>
-      </tr>
-      <tr>
-        <td>Modified Newtonian</td>
-        <td>Pressure</td>
-        <td class="num">0.313</td>
-      </tr>
-      <tr>
-        <td>Euler (fine)</td>
-        <td>Pressure</td>
-        <td class="num">0.313</td>
-      </tr>
-      <tr>
-        <td>RANS (SST)</td>
-        <td>Pressure</td>
-        <td class="num">0.342</td>
-      </tr>
-      <tr>
-        <td>RANS (SST)</td>
-        <td>Friction</td>
-        <td class="num">2 &times; 10<sup>&minus;6</sup></td>
-      </tr>
-      <tr>
-        <td>RANS (SST)</td>
-        <td>Total</td>
-        <td class="num">0.342</td>
-      </tr>
+      <tr><td>Pure Newtonian</td><td>Pressure</td><td class="num">0.313</td></tr>
+      <tr><td>Modified Newtonian</td><td>Pressure</td><td class="num">0.313</td></tr>
+      <tr><td>Euler (fine)</td><td>Pressure</td><td class="num">0.313</td></tr>
+      <tr><td>RANS (SST)</td><td>Pressure</td><td class="num">0.342</td></tr>
+      <tr><td>RANS (SST)</td><td>Friction</td><td class="num">2 &times; 10&#8315;&#8310;</td></tr>
+      <tr><td>RANS (SST)</td><td>Total</td><td class="num">0.342</td></tr>
     </tbody>
   </table>
 
   <div class="finding reveal">
-    <p><strong>Key result:</strong> Newtonian theory and Euler CFD predict identical forebody pressure drag ($C_{D,p} = 0.313$). RANS predicts ~9% higher due to viscous shock&ndash;boundary-layer interaction, despite negligible skin friction.</p>
+    <p><strong>Key result:</strong> Newtonian theory and Euler CFD predict identical forebody pressure drag ($C_{D,p} = 0.313$). RANS predicts ~9% higher ($C_{D,p} = 0.342$) due to viscous shock&ndash;boundary-layer interaction, despite negligible skin friction ($C_{D,f} \approx 2\times10^{-6}$).</p>
   </div>
 </section>
 
-<!-- CONCLUSIONS -->
-<section id="conclusions">
-  <div class="section-label">// 04 &mdash; Conclusions</div>
-  <h2 class="section-title">What this means</h2>
+<!-- FLOW VISUALIZATION -->
+<section id="contours">
+  <div class="section-label">// 06 &mdash; Flow Visualization</div>
+  <h2 class="section-title">Mach contours</h2>
   <div class="section-divider"></div>
 
-  <ul class="conclusion-list reveal">
-    <li><strong>Newtonian theory matches Euler CFD</strong> &mdash; predicts the forebody pressure drag of a Mach 5 tangent ogive to within a few percent of converged inviscid results ($C_{D,p} \approx 0.313$), demonstrating excellent performance for rapid preliminary analysis.</li>
-    <li><strong>Euler confirms Newtonian assumptions</strong> &mdash; grid-converged inviscid results show that numerical errors are small compared to physical modeling differences for this geometry and flow regime.</li>
-    <li><strong>Viscous effects add ~9&ndash;10%</strong> &mdash; RANS yields higher pressure drag ($C_{D,p} = 0.342$), highlighting the role of shock&ndash;boundary-layer interaction even when skin-friction drag itself is negligible.</li>
-    <li><strong>Practical implication</strong> &mdash; for early-stage hypersonic design of slender bodies at zero angle of attack, Newtonian theory provides a fast and reliable estimate. Euler or RANS should be reserved for higher-fidelity validation or viscosity-driven flow physics.</li>
-  </ul>
-
-  <div class="reveal" style="margin-top: 48px;">
-    <a href="data.html" class="report-link">View data sheet &rarr;</a>
-    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis" class="link-ghost">View on GitHub &rarr;</a>
-    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis/blob/main/docs/tangent_ogive_cfd_report.pdf" class="link-ghost">Full PDF report &rarr;</a>
+  <div class="contour-gallery reveal">
+    <div class="contour-item">
+      <img src="assets/mach_coarse.png" alt="Mach contour — coarse Euler grid" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Coarse Euler</span><span class="contour-tag">4,458 cells</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_medium.png" alt="Mach contour — medium Euler grid" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Medium Euler</span><span class="contour-tag">16,700 cells</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_fine.png" alt="Mach contour — fine Euler grid" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Fine Euler</span><span class="contour-tag">64,677 cells</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/mach_rans.png" alt="Mach contour — RANS SST simulation" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">RANS (SST)</span><span class="contour-tag">260,287 cells</span></div>
+    </div>
   </div>
+</section>
+
+<!-- DOWNLOADS -->
+<section id="downloads">
+  <div class="section-label">// 07 &mdash; Source &amp; References</div>
+  <h2 class="section-title">Get the data</h2>
+  <div class="section-divider"></div>
+
+  <div class="reveal downloads-row">
+    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis/blob/main/docs/tangent_ogive_cfd_report.pdf" class="report-link">Full PDF report &rarr;</a>
+    <a href="https://github.com/samayhs/tangent-ogive-cfd-analysis" class="link-ghost">View on GitHub &rarr;</a>
+    <a href="index.html" class="link-ghost">Read the writeup &rarr;</a>
+  </div>
+
+  <div class="ref-label reveal" style="margin-top:44px;">References</div>
+  <ul class="ref-list reveal" style="margin-top:14px;border-top:none;padding-top:0;">
+    <li><b>[1] Star-CCM+</b> &mdash; Siemens Digital Industries Software, <i>Simcenter STAR-CCM+ User Guide</i>.</li>
+    <li><b>[2] Mayo Tables</b> &mdash; Mayo, W. L., <i>Tables of Newtonian Pressure Coefficients for Conical and Ogival Nose Shapes</i>, NASA Technical Report, 1960.</li>
+  </ul>
 </section>
 
 <footer>
