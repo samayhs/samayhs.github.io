@@ -631,8 +631,8 @@
   <div class="hero-inner">
     <div class="hero-tag">// USC M.S. Aerospace '26 · Cal Poly SLO B.S. '24</div>
     <h1 class="hero-name">Samay<br/><em>Shah</em></h1>
-    <p class="hero-role">CFD · Combustion · Physics ML</p>
-    <p class="hero-desc">I build physics-informed machine learning and high-fidelity simulations for aerospace propulsion. My work runs from stiff combustion-chemistry surrogates to turbulence reconstruction from sparse sensors.</p>
+    <p class="hero-role">Engineering · Simulation · Machine Learning</p>
+    <p class="hero-desc">I build physics-informed ML and high-fidelity simulations for hard engineering problems. The work runs from stiff combustion-chemistry surrogates to turbulence fields rebuilt from a handful of sensors.</p>
     <div class="hero-cta">
       <a href="#projects" class="btn-primary">View Projects</a>
       <a href="#contact" class="btn-ghost">Get in touch →</a>
@@ -651,9 +651,9 @@
   <div class="section-divider"></div>
   <div class="about-grid reveal">
     <div class="about-text">
-      <p>I earned my <strong>M.S. in Aerospace Engineering</strong> from USC Viterbi in May 2026, and my <strong>B.S. from Cal Poly San Luis Obispo</strong> in 2024. My work joins high-fidelity simulation with machine learning. I apply ML to accelerate combustion chemistry inside CFD workflows.</p>
-      <p>Before graduate school I spent about a year as a <strong>stress analyst at Structural Integrity Engineering</strong>. I ran FEM and hand analysis on FAA STC freighter conversions, including the A320, 737, and A330, and held checker and approver authority on that work.</p>
-      <p>I am pursuing full-time roles in <strong>aerospace simulation, propulsion, software, and physics-informed ML</strong>. I care most about problems that carry from a model to validated hardware.</p>
+      <p>I finished my <strong>M.S. in Aerospace Engineering</strong> at USC Viterbi in May 2026, after a <strong>B.S. from Cal Poly San Luis Obispo</strong> in 2024. My work sits where high-fidelity simulation meets machine learning. I use ML to speed up combustion chemistry inside CFD.</p>
+      <p>Before grad school I spent a year as a <strong>stress analyst at Structural Integrity Engineering</strong>. I ran FEM and hand analysis on FAA STC freighter conversions of the A320, 737, and A330, and held checker and approver authority on that work.</p>
+      <p>I want full-time roles in <strong>simulation, propulsion, robotics, software, and physics-informed ML</strong>. The problems I care about carry all the way from a model to validated hardware.</p>
     </div>
   </div>
 
@@ -662,43 +662,55 @@
   <div class="section-divider" style="margin-bottom: 32px;"></div>
   <div class="skills-grid reveal">
     <div class="skill-group">
-      <div class="skill-group-name">CFD</div>
+      <div class="skill-group-name">Languages &amp; Tools</div>
       <ul class="skill-list">
-        <li>Star-CCM+</li>
-        <li>ANSYS</li>
-        <li>SU2</li>
-        <li>RANS / turbulence</li>
-        <li>Grid convergence</li>
+        <li>Python</li>
+        <li>MATLAB</li>
+        <li>C++</li>
+        <li>Git</li>
+        <li>Bash</li>
+        <li>Linux / WSL2</li>
+        <li>LaTeX</li>
       </ul>
     </div>
     <div class="skill-group">
-      <div class="skill-group-name">Combustion</div>
-      <ul class="skill-list">
-        <li>Cantera</li>
-        <li>FFCM-2 mechanism</li>
-        <li>Chemical kinetics</li>
-        <li>Stiff ODE integration</li>
-        <li>NASA-7 thermodynamics</li>
-      </ul>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-name">ML / Python</div>
+      <div class="skill-group-name">Machine Learning</div>
       <ul class="skill-list">
         <li>PyTorch</li>
         <li>PINNs</li>
         <li>Automatic differentiation</li>
         <li>Surrogate modeling</li>
-        <li>Python / MATLAB</li>
+        <li>Physics-informed losses</li>
       </ul>
     </div>
     <div class="skill-group">
-      <div class="skill-group-name">Structures</div>
+      <div class="skill-group-name">Combustion &amp; Flow Physics</div>
       <ul class="skill-list">
-        <li>Stress analysis</li>
-        <li>FEA (NX, FEMAP)</li>
-        <li>FAA STC modifications</li>
-        <li>Fatigue &amp; fracture</li>
-        <li>Load testing</li>
+        <li>Premixed flame theory</li>
+        <li>Laminar flame speed</li>
+        <li>Flashback mechanisms</li>
+        <li>Reacting &amp; compressible flow</li>
+        <li>Conjugate heat transfer</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-name">CFD</div>
+      <ul class="skill-list">
+        <li>Verification &amp; validation</li>
+        <li>OpenFOAM</li>
+        <li>DeepFlame</li>
+        <li>Star-CCM+</li>
+        <li>ANSYS Fluent</li>
+        <li>SU2</li>
+      </ul>
+    </div>
+    <div class="skill-group">
+      <div class="skill-group-name">Design &amp; Structures</div>
+      <ul class="skill-list">
+        <li>Siemens NX</li>
+        <li>CATIA</li>
+        <li>FEMAP</li>
+        <li>ParaView</li>
       </ul>
     </div>
   </div>
@@ -714,7 +726,7 @@
     <div class="project-card reveal">
       <div class="project-num">01 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; flagship</div>
       <div class="project-title">StateNet2 — PINN Combustion Surrogate</div>
-      <div class="project-desc">A PyTorch PINN surrogate that propagates stiff combustion chemistry across the 96-species FFCM-2 mechanism. It runs about 50 times faster than Cantera and holds R² above 0.999, with NASA-7 thermodynamics and autograd residuals enforcing the physics.</div>
+      <div class="project-desc">A PyTorch PINN surrogate that marches stiff combustion chemistry across the 96-species FFCM-2 mechanism. It runs about 50x faster than Cantera at R² above 0.999, with NASA-7 thermodynamics and autograd residuals holding the physics in place.</div>
       <div class="project-tags">
         <span class="project-tag">PyTorch</span>
         <span class="project-tag">PINNs</span>
@@ -727,7 +739,7 @@
     <div class="project-card reveal" style="transition-delay: 0.1s;">
       <div class="project-num">02 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
       <div class="project-title">Turbulent Channel-Flow PINN</div>
-      <div class="project-desc">A PINN that reconstructs 3D velocity and pressure fields from sparse wall-sensor data. Built on BLASTNet DNS at Re_τ = 544 with SIREN activations, it embeds the Navier-Stokes residuals in the loss and reaches roughly 1e-4 relative L2 error.</div>
+      <div class="project-desc">A PINN that rebuilds 3D velocity and pressure fields from sparse wall-sensor data. It trains on BLASTNet DNS at Re_τ = 544 with SIREN activations, bakes the Navier-Stokes residuals into the loss, and lands near 1e-4 relative L2 error.</div>
       <div class="project-tags">
         <span class="project-tag">PyTorch</span>
         <span class="project-tag">PINNs</span>
@@ -740,7 +752,7 @@
     <div class="project-card reveal" style="transition-delay: 0.2s;">
       <div class="project-num">03 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
       <div class="project-title">Mach-5 Forebody CFD</div>
-      <div class="project-desc">Axisymmetric hypersonic analysis of a tangent-ogive forebody at Mach 5 in Star-CCM+, benchmarked against Newtonian impact theory. I ran inviscid Euler and viscous RANS solutions, then used a grid convergence study with Richardson extrapolation to bound the numerical error.</div>
+      <div class="project-desc">Axisymmetric hypersonic analysis of a tangent-ogive forebody at Mach 5 in Star-CCM+, checked against Newtonian impact theory. I ran inviscid Euler and viscous RANS cases, then bounded the numerical error with a grid convergence study and Richardson extrapolation.</div>
       <div class="project-tags">
         <span class="project-tag">Star-CCM+</span>
         <span class="project-tag">RANS</span>
@@ -756,7 +768,7 @@
     <div class="project-card reveal" style="transition-delay: 0.3s;">
       <div class="project-num">04 &nbsp;—&nbsp; <span class="status-pip"></span>&nbsp; completed</div>
       <div class="project-title">Hat-Stiffened Fuselage Panel</div>
-      <div class="project-desc">A hat-stiffened fuselage panel designed in Siemens NX with parametric FEA. I fabricated and load-tested the part to failure against my predicted response, closing the loop from model to physical validation.</div>
+      <div class="project-desc">A hat-stiffened fuselage panel built in Siemens NX with parametric FEA. I fabricated the part and load-tested it to failure against my predicted response, closing the loop from model to hardware.</div>
       <div class="project-tags">
         <span class="project-tag">Siemens NX</span>
         <span class="project-tag">FEA</span>
@@ -783,7 +795,7 @@
       <div class="exp-date">2024 — 2026</div>
       <div class="exp-title">Graduate Researcher — Combustion & Physics-ML</div>
       <div class="exp-place">Rui Ray Reacting Flows Research Group, USC Viterbi</div>
-      <div class="exp-desc">Built StateNet2, a PyTorch PINN surrogate for stiff 96-species combustion chemistry, reaching about 50x speedup over Cantera. Also reconstructed turbulent flow fields from sparse sensors by embedding the Navier-Stokes residuals directly in the loss.</div>
+      <div class="exp-desc">Built StateNet2, a PyTorch PINN surrogate for stiff 96-species combustion chemistry, at roughly 50x the speed of Cantera. Also rebuilt turbulent flow fields from sparse sensors by writing the Navier-Stokes residuals straight into the loss.</div>
     </div>
 
     <div class="exp-item">
@@ -791,7 +803,7 @@
       <div class="exp-date">Prior</div>
       <div class="exp-title">Stress Analyst</div>
       <div class="exp-place">Structural Integrity Engineering</div>
-      <div class="exp-desc">Performed FEM and hand-calc stress analysis for FAA STC modifications on commercial aircraft, including the A320, 737, and A330 freighter conversions. Held checker and approver authority on flight-critical structural work.</div>
+      <div class="exp-desc">Ran FEM and hand-calc stress analysis for FAA STC modifications on commercial aircraft, including A320, 737, and A330 freighter conversions. Held checker and approver authority on flight-critical structural work.</div>
     </div>
 
     <div class="exp-item">
@@ -799,7 +811,7 @@
       <div class="exp-date">2024 — 2026</div>
       <div class="exp-title">M.S. Aerospace Engineering</div>
       <div class="exp-place">University of Southern California</div>
-      <div class="exp-desc">Specialization in propulsion and computational fluid dynamics. Coursework in turbulence, combustion, machine learning for computational physics, and numerical methods.</div>
+      <div class="exp-desc">Specialized in propulsion and computational fluid dynamics. Coursework in turbulence, combustion, machine learning for computational physics, and numerical methods.</div>
     </div>
 
     <div class="exp-item">
@@ -807,7 +819,7 @@
       <div class="exp-date">— 2024</div>
       <div class="exp-title">B.S. Aerospace Engineering (Astronautics)</div>
       <div class="exp-place">California Polytechnic State University, San Luis Obispo</div>
-      <div class="exp-desc">Foundation in astronautics, structures, and aerodynamics, with hands-on design and test coursework.</div>
+      <div class="exp-desc">Grounding in astronautics, structures, and aerodynamics, with hands-on design and test work.</div>
     </div>
 
   </div>
@@ -819,7 +831,7 @@
   <h2 class="section-title">Let's talk</h2>
   <div class="section-divider"></div>
   <div class="contact-inner reveal">
-    <p class="contact-tagline">Open to full-time roles in aerospace simulation, propulsion, software, and physics-informed ML.</p>
+    <p class="contact-tagline">Open to full-time roles in simulation, propulsion, robotics, software, and physics-informed ML.</p>
     <div class="contact-links">
       <a href="mailto:samayshah5@gmail.com" class="contact-row">
         <span class="contact-platform">Email</span>
