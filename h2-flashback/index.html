@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hydrogen Boundary-Layer Flashback — Samay Shah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] } };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1f;
+    --bg2: #0e0e1a;
+    --bg3: #131320;
+    --border: #1e1e2e;
+    --border2: #2a2a3e;
+    --text: #fe9c00;
+    --muted: #555570;
+    --muted2: #888898;
+    --accent: #fe9c00;
+    --accent2: #fe9c00;
+    --accent3: #4D9078;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  body { cursor: none; }
+  #cursor {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s, opacity 0.15s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+    transform: translate(-50%, -50%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,15,0.85);
+    backdrop-filter: blur(12px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  #hero {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    padding-top: 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(254,156,0,0.05) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    max-width: 900px;
+  }
+  .hero-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: inline-block;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-back:hover { color: var(--text); border-color: var(--muted2); }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+  .hero-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.45s forwards;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .hero-desc {
+    font-size: 15px;
+    color: var(--muted2);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.75s forwards;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meta-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 48px;
+    max-width: 1196px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 48px;
+    opacity: 0.6;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 820px;
+  }
+  .content p {
+    color: var(--muted2);
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+  .content p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* PARAMS TABLE */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 820px;
+  }
+  .param-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 20px;
+  }
+  .param-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .param-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* DATA TABLE */
+  .data-table {
+    width: 100%;
+    max-width: 820px;
+    border-collapse: collapse;
+    margin: 24px 0 40px;
+  }
+  .data-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg2);
+  }
+  .data-table td {
+    font-size: 14px;
+    color: var(--muted2);
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .data-table tr:hover td {
+    color: var(--text);
+    background: rgba(254,156,0,0.02);
+  }
+  .data-table .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* CONTOUR GALLERY */
+  .contour-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .contour-item {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .contour-item:hover { border-color: var(--border2); }
+  .contour-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .contour-item:hover img { transform: scale(1.02); }
+  .contour-caption {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .contour-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.05em;
+  }
+  .contour-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* METHOD CARDS */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .method-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .method-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .method-card:hover { border-color: var(--border2); }
+  .method-card:hover::before { transform: scaleX(1); }
+  .method-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--border2);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .method-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .method-desc {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+  .method-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .method-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* EQUATIONS */
+  .equation-block {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 28px 32px;
+    margin: 24px 0 32px;
+    max-width: 820px;
+    overflow-x: auto;
+  }
+  .equation-block .MathJax { color: var(--text) !important; }
+  .equation-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* KEY FINDING */
+  .finding {
+    border-left: 2px solid var(--accent);
+    padding: 20px 28px;
+    margin: 32px 0;
+    max-width: 820px;
+    background: rgba(254,156,0,0.03);
+  }
+  .finding p {
+    color: var(--muted2);
+    line-height: 1.8;
+    margin: 0;
+    font-size: 14px;
+  }
+  .finding strong {
+    color: var(--text);
+  }
+
+  /* CONCLUSION LIST */
+  .conclusion-list {
+    list-style: none;
+    max-width: 820px;
+  }
+  .conclusion-list li {
+    position: relative;
+    padding-left: 24px;
+    color: var(--muted2);
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  .conclusion-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+  .conclusion-list li strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* REPORT LINK */
+  .report-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    padding: 14px 28px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    margin-top: 16px;
+  }
+  .report-link:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .link-ghost {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    text-decoration: none;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    margin-left: 24px;
+  }
+  .link-ghost:hover { color: var(--text); border-color: var(--muted2); }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 48px;
+    max-width: 1196px;
+    margin: 0 auto;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .footer-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .footer-back:hover { color: var(--accent); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    #hero { padding: 0 24px; padding-top: 80px; }
+    footer { padding: 24px; flex-direction: column; gap: 12px; }
+    .contour-gallery { grid-template-columns: 1fr; }
+    .method-grid { grid-template-columns: 1fr; }
+    .params-grid { grid-template-columns: 1fr 1fr; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+<style>
+  /* pending / placeholder block */
+  .pending-box{
+    border:1px dashed var(--border2);
+    background:repeating-linear-gradient(45deg, var(--bg2), var(--bg2) 10px, var(--bg3) 10px, var(--bg3) 20px);
+    padding:40px 32px;
+    max-width:820px;
+    margin:24px 0 40px;
+    text-align:center;
+  }
+  .pending-tag{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:#f59e0b;
+    border:0.5px solid rgba(245,158,11,0.4);
+    background:rgba(245,158,11,0.06);
+    padding:4px 12px;
+    margin-bottom:16px;
+  }
+  .pending-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--muted2);margin-bottom:10px;}
+  .pending-desc{font-size:13.5px;color:var(--muted);line-height:1.75;max-width:560px;margin:0 auto;}
+  /* video visualization */
+  .viz-figure{
+    max-width:960px;margin:24px 0 16px;
+    border:0.5px solid var(--border);background:var(--bg2);overflow:hidden;
+  }
+  .viz-figure video{width:100%;display:block;}
+  .viz-caption{
+    padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;
+    border-top:0.5px solid var(--border);
+  }
+  .viz-caption .vl{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:0.05em;}
+  .viz-caption .vt{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.05em;
+    border:0.5px solid var(--border2);background:var(--bg3);padding:3px 8px;white-space:nowrap;}
+  /* task objectives */
+  .task-list{list-style:none;max-width:820px;counter-reset:task;}
+  .task-list li{
+    position:relative;padding:18px 0 18px 52px;border-bottom:0.5px solid var(--border);
+    color:var(--muted2);font-size:15px;line-height:1.7;
+  }
+  .task-list li::before{
+    counter-increment:task;content:counter(task,decimal-leading-zero);
+    position:absolute;left:0;top:18px;
+    font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:0.05em;
+  }
+  .task-list li strong{color:var(--text);font-weight:500;}
+  /* status roadmap */
+  .roadmap-list{list-style:none;max-width:820px;margin-top:8px;}
+  .roadmap-list li{
+    display:grid;grid-template-columns:64px 1fr auto;gap:20px;align-items:baseline;
+    padding:14px 0;border-bottom:0.5px solid var(--border);
+  }
+  .roadmap-list .rv{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:0.08em;}
+  .roadmap-list .rd{color:var(--muted2);font-size:14px;line-height:1.6;}
+  .roadmap-list .rd b{color:var(--text);font-weight:500;}
+  .roadmap-list .rs{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+  .rs.done{color:var(--accent3);}
+  .rs.pending{color:#f59e0b;}
+  @media(max-width:768px){.roadmap-list li{grid-template-columns:1fr;gap:4px;}}
+</style>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="https://samayhs.github.io" class="nav-logo">S.Shah</a>
+  <ul class="nav-links">
+    <li><a href="#situation">Situation</a></li>
+    <li><a href="#task">Task</a></li>
+    <li><a href="#action">Action</a></li>
+    <li><a href="#result">Result</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <a href="https://samayhs.github.io/#projects" class="hero-back">&larr; Back to projects</a>
+    <div class="hero-tag">// Combustion CFD + Physics-ML</div>
+    <h1 class="hero-name">Hydrogen<br/><em>Boundary-Layer Flashback</em></h1>
+    <p class="hero-desc">A DeepFlame model of how a premixed hydrogen flame creeps upstream through the wall boundary layer of a burner. Boundary-layer flashback is one of the top safety obstacles to hydrogen-fueled gas turbines. The work runs from cold-flow validation through a flashback-onset criterion matched to classical theory, then benchmarks a neural-network chemistry surrogate against direct Cantera CVODE integration.</p>
+    <div class="hero-meta">
+      <div class="meta-item"><span class="meta-label">Solver</span><span class="meta-value">DeepFlame</span></div>
+      <div class="meta-item"><span class="meta-label">Stack</span><span class="meta-value">OpenFOAM · Cantera · PyTorch</span></div>
+      <div class="meta-item"><span class="meta-label">Fuel</span><span class="meta-value">Premixed H&#8322; / air</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value" style="color:var(--accent3)">Complete</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SITUATION -->
+<section id="situation">
+  <div class="section-label">// 01 &mdash; Situation</div>
+  <h2 class="section-title">The hydrogen flashback problem</h2>
+  <div class="section-divider"></div>
+  <div class="content reveal">
+    <p>Hydrogen burns roughly an order of magnitude faster than natural gas and diffuses faster than the heat it releases (Lewis number &lt; 1). In a premixed burner this creates a failure mode called <strong>boundary-layer flashback (BLF)</strong>. The flame propagates upstream through the slow-moving gas hugging the burner wall, into premixing hardware never designed to hold a flame. It is one of the most frequently cited stability and safety problems in making gas turbines hydrogen-capable.</p>
+    <p>Industry validation of BLF models follows a set structure. Simplified rig &rarr; semi-empirical model &rarr; applied to commercial hardware. TU Delft and PSI both built BLF models on the classical critical-velocity-gradient framework and applied them to a scaled version of GE's Flamesheet&trade; combustor. This project targets this framework as validation reference.</p>
+  </div>
+
+  <div class="params-grid reveal">
+    <div class="param-box"><div class="param-value">H&#8322; / air</div><div class="param-label">Premixed fuel</div></div>
+    <div class="param-box"><div class="param-value">&phi; = 1.0</div><div class="param-label">Baseline equivalence ratio</div></div>
+    <div class="param-box"><div class="param-value">300 K</div><div class="param-label">Unburnt temperature</div></div>
+    <div class="param-box"><div class="param-value">1 atm</div><div class="param-label">Operating pressure</div></div>
+    <div class="param-box"><div class="param-value">2.32 m/s</div><div class="param-label">Laminar flame speed S&#8343;</div></div>
+    <div class="param-box"><div class="param-value">Le &lt; 1</div><div class="param-label">Sub-unity Lewis number</div></div>
+  </div>
+</section>
+
+<!-- TASK -->
+<section id="task">
+  <div class="section-label">// 02 &mdash; Task</div>
+  <h2 class="section-title">What it set out to do</h2>
+  <div class="section-divider"></div>
+  <div class="content reveal">
+    <p>Build a hydrogen boundary-layer-flashback model from scratch in DeepFlame to isolate and quantify the onset mechanism, then use the same case to test whether a learned chemistry model can stand in for direct kinetics.</p>
+  </div>
+  <ul class="task-list reveal">
+    <li>Build a CFD model that <strong>isolates boundary-layer flashback</strong> as a single, cleanly-attributable mechanism </li>
+    <li>Bracket the <strong>flashback-onset velocity gradient</strong> and test it against the classical Lewis &amp; von Elbe / Berlad critical-gradient theory.</li>
+    <li>Benchmark a <strong>neural-network chemistry surrogate</strong> against direct Cantera CVODE integration on the identical case, measuring accuracy and wall-clock speed.</li>
+  </ul>
+</section>
+
+<!-- ACTION -->
+<section id="action">
+  <div class="section-label">// 03 &mdash; Action</div>
+  <h2 class="section-title">What was modeled</h2>
+  <div class="section-divider"></div>
+
+  <div class="content reveal">
+    <p>The core modeling decision was to isolate a single mechanism cleanly. A backward-facing step stabilizes the flame by recirculation 
+      and conflates shear-layer transport with wall creep. A <strong>rim-anchored channel</strong> leaves the wall boundary layer as the only path 
+      upstream, so when the flame moves upstream, boundary-layer flashback is the only available explanation.</p>
+  </div>
+
+  <div class="method-grid reveal">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">Geometry &amp; cold flow</div>
+      <div class="method-desc">A straight 2D channel and a rim-anchored sudden-expansion variant, built with OpenFOAM's blockMesh and wall-normal grading for boundary-layer resolution. Validated against the analytical Poiseuille solution before any chemistry. The near-wall velocity gradient is the control variable for flashback onset.</div>
+      <div class="method-tags">
+        <span class="method-tag">DeepFlame</span>
+        <span class="method-tag">blockMesh</span>
+        <span class="method-tag">Poiseuille</span>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Finite-rate chemistry</div>
+      <div class="method-desc">Low-Mach reacting flow with full finite-rate H&#8322;/air kinetics via DeepFlame's native per-cell Cantera CVODE coupling, plus mixture-averaged (per-species) diffusion. This keeps the sub-unity Lewis transport that makes hydrogen flashback severe in the first place.</div>
+      <div class="method-tags">
+        <span class="method-tag">Cantera CVODE</span>
+        <span class="method-tag">Mix diffusion</span>
+        <span class="method-tag">H&#8322; mechanism</span>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">DNN chemistry surrogate</div>
+      <div class="method-desc">A PyTorch neural-network chemistry surrogate (DFODE-kit / DF-ODENet) trained on this case's conditions, swapped in for the per-cell Cantera CVODE call inside the same solver and benchmarked for accuracy and wall-clock speedup.</div>
+      <div class="method-tags">
+        <span class="method-tag">PyTorch</span>
+        <span class="method-tag">DFODE-kit</span>
+        <span class="method-tag">Benchmarked</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="finding reveal">
+    <p><strong>Done with a pre-registration discipline:</strong> the onset prediction was committed <em>before</em> the sweeps ran, then <em>falsified twice</em> in the straight confined channel &mdash; which can't isolate classical onset, because any surviving flame spans the full height and drives itself upstream by flame-area amplification (validated separately by the kinematic closure U<sub>f</sub> = S<sub>L,eff</sub>&middot;L<sub>arc</sub>/H &minus; U<sub>b</sub>, holding to ~10% over 8 runs). Each miss was diagnosed to a specific physical cause before the onset test moved to the correct rim-anchored geometry.</p>
+  </div> -->
+</section>
+
+<!-- RESULT -->
+<section id="result">
+  <div class="section-label">// 04 &mdash; Result</div>
+  <h2 class="section-title">What it found</h2>
+  <div class="section-divider"></div>
+
+  <!-- Validation -->
+  <div class="content reveal">
+    <div class="section-label">// Validation</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Cold flow &amp; flame speed</h3>
+    <div class="section-divider"></div>
+    <p>With chemistry off, the channel reproduces the analytical fully-developed profile and recovers the wall velocity gradient <strong>g = du/dy</strong>, the quantity the onset comparison is built on, to within 0.1%. The reacting solver's laminar flame speed then gates against a Cantera 1D flame. The production mesh burns ~11% fast, quantified by Richardson extrapolation and carried through. This bias cancels in the onset check below.</p>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Quantity</th><th>Simulated</th><th>Reference</th><th>Deviation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Centerline velocity</td><td class="num">4.4962 m/s</td><td class="num">4.4943 m/s</td><td class="num">+0.04%</td></tr>
+      <tr><td>Wall gradient g</td><td class="num">5996.1 1/s</td><td class="num">6000 (theory)</td><td class="num">&minus;0.07%</td></tr>
+      <tr><td>Bulk velocity (in &rarr; out)</td><td class="num">3.0003 &rarr; 3.0009</td><td class="num">3.0 m/s</td><td class="num">+0.03%</td></tr>
+      <tr><td>S&#8343; (DeepFlame, Richardson)</td><td class="num">2.3209 m/s</td><td class="num">2.3209 (Cantera)</td><td class="num">0.00%</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Flashback onset -->
+  <div class="content reveal" style="margin-top: 64px;">
+    <div class="section-label">// Flashback Onset &mdash; headline</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Flash vs. hold</h3>
+    <div class="section-divider"></div>
+    <p>In the rim-anchored geometry the flame ignites at the step lip and either <strong>flashes back</strong> or <strong>holds</strong> at the lip. When it flashes back it propagates upstream as a near-wall tongue, leading edge 0.2&ndash;0.4 mm off the wall, inside the boundary layer. Sweeping bulk velocity upward brackets the onset gradient.</p>
+  </div>
+
+  <div class="viz-figure reveal">
+    <video autoplay loop muted playsinline poster="assets/onset.png">
+      <source src="assets/flash_vs_hold.mp4" type="video/mp4" />
+      <img src="assets/flash_vs_hold.gif" alt="Flash vs hold flashback animation" />
+    </video>
+    <div class="viz-caption">
+      <span class="vl">Flash (g &lt; g&#8339;&#8348;&#8348;) vs. hold (g &gt; g&#8339;&#8348;&#8348;), temperature field, rim-anchored channel</span>
+      <span class="vt">the g&#8339;&#8348;&#8348; result, as video</span>
+    </div>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>U&#7495; (m/s)</th><th>g (1/s)</th><th>Settled state</th><th>Creep U&#7584; (m/s)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">3</td><td class="num">6,000</td><td>flash</td><td class="num">1.68</td></tr>
+      <tr><td class="num">4</td><td class="num">8,000</td><td>flash</td><td class="num">1.76</td></tr>
+      <tr><td class="num">5</td><td class="num">10,000</td><td>flash</td><td class="num">1.53</td></tr>
+      <tr><td class="num">6</td><td class="num">12,000</td><td>flash</td><td class="num">1.27</td></tr>
+      <tr><td class="num">6.5</td><td class="num">13,000</td><td><span style="color:var(--accent3);font-weight:500">HOLD at lip</span></td><td class="num">0</td></tr>
+      <tr><td class="num">7</td><td class="num">14,000</td><td><span style="color:var(--accent3);font-weight:500">HOLD at lip</span></td><td class="num">0</td></tr>
+    </tbody>
+  </table>
+
+  <div class="finding reveal">
+    <p><strong>Onset lands at g<sub>crit</sub> &isin; [12,000, 13,000] 1/s</strong>, a two-sided bracket rather than a single point. The flame flashes at 12,000 and holds at both 13,000 and 14,000. Cast in the semi-empirical critical-gradient model g<sub>c</sub> = C&middot;(S&#8343;/&delta;<sub>q</sub>), the simulation implies a model constant <strong>C &asymp; 3.2</strong>. That sits inside the documented <strong>C = 2.5&ndash;5</strong> range (Kalantari &amp; McDonell 2017) and is O(10&#8308;), like experimental H&#8322;/air data. The +11% mesh bias cancels in C, since it scales both g<sub>crit</sub> and S&#8343; proportionally, so the consistency is bias-independent.</p>
+  </div>
+
+  <div class="contour-gallery reveal">
+    <div class="contour-item">
+      <img src="assets/mesh.png" alt="Rim-anchored mesh with wall-normal refinement" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Rim-anchored mesh</span><span class="contour-tag">wall-graded</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/coldflow.png" alt="Cold-flow Poiseuille validation fields" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Cold-flow validation</span><span class="contour-tag">g to 0.1%</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/flashback.png" alt="Boundary-layer flashback into the burner" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Flashback tongue</span><span class="contour-tag">near-wall creep</span></div>
+    </div>
+    <div class="contour-item">
+      <img src="assets/onset.png" alt="Flashback onset bracket vs wall velocity gradient" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">Onset bracket</span><span class="contour-tag">g&#8339;&#8348;&#8348; ~12,500</span></div>
+    </div>
+  </div>
+
+  <!-- Chemistry surrogate -->
+  <div class="content reveal" style="margin-top: 64px;">
+    <div class="section-label">// Chemistry Surrogate</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">Neural net vs. Cantera CVODE</h3>
+    <div class="section-divider"></div>
+    <p>The per-cell chemistry integration is the expensive part of a finite-rate solve. A PyTorch surrogate trained on this case's H&#8322; chemistry swaps in for the Cantera CVODE call inside the solver. It runs, stays physical, and reproduces the direct integration to about five significant figures.</p>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Metric</th><th>Result</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Max species error |&Delta;Y|</td><td class="num">3.3 &times; 10&#8315;&#8309;</td><td>vs. Cantera CVODE ground truth</td></tr>
+      <tr><td>Mean species error</td><td class="num">~3 &times; 10&#8315;&#8310;</td><td>~5 significant figures</td></tr>
+      <tr><td>In-solver integration</td><td class="num">stable</td><td>flame physical, exit 0</td></tr>
+      <tr><td>CPU speedup (DNN vs CVODE)</td><td class="num">~2&ndash;4&times;</td><td>reference 189 µs/cell, CPU-vs-CPU</td></tr>
+    </tbody>
+  </table>
+
+  <div class="contour-gallery reveal" style="grid-template-columns: 1fr; max-width: 600px;">
+    <div class="contour-item">
+      <img src="assets/dnn_speedup.png" alt="DNN vs Cantera CVODE CPU speedup benchmark" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">CPU speedup benchmark</span><span class="contour-tag">accuracy validated</span></div>
+    </div>
+  </div>
+
+  <div class="pending-box reveal">
+    <div class="pending-tag">Pending &middot; GPU speedup</div>
+    <div class="pending-title">Batched GPU surrogate vs. serial CPU CVODE</div>
+    <div class="pending-desc">The surrogate's real advantage is on-GPU, batched across cells, where it replaces serial per-cell Cantera CVODE integration. That benchmark measures speedup against batch size and runs on cloud GPU. Results and the scaling curve drop in here once measured.</div>
+  </div>
+</section>
+
+<!-- SCOPE, STATUS & LIMITATIONS -->
+<section id="scope">
+  <div class="section-label">// 05 &mdash; Scope, Status &amp; Limitations</div>
+  <h2 class="section-title">Where it stands</h2>
+  <div class="section-divider"></div>
+
+  <ul class="roadmap-list reveal">
+    <li><span class="rv">v0.4</span><span class="rd"><b>Cold-flow validation.</b> Poiseuille profile &amp; wall gradient to 0.1%</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.5</span><span class="rd"><b>Reacting flow.</b> Flame speed gated to Cantera, flashback reproduced</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.6</span><span class="rd"><b>Onset criterion.</b> g<sub>crit</sub> bracketed, consistent with the critical-gradient model at C ≈ 3.2</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.7</span><span class="rd"><b>DNN surrogate.</b> Integrated in-solver, accuracy + CPU speedup benchmarked</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v1.0</span><span class="rd"><b>Packaged case.</b> Reproducible rim-anchored flashback example, DeepFlame upstream PR drafted</span><span class="rs done">Done</span></li>
+    <li><span class="rv">next</span><span class="rd"><b>GPU speedup benchmark.</b> Batched surrogate vs. serial CPU CVODE</span><span class="rs pending">Pending</span></li>
+  </ul>
+
+  <div class="content reveal" style="margin-top: 40px;">
+    <div class="section-label">// Stated Limitations</div>
+    <div class="section-divider" style="margin-bottom: 32px;"></div>
+  </div>
+
+  <ul class="conclusion-list reveal">
+    <li><strong>Swirl is out of scope.</strong> Real combustors are swirl-stabilized, which adds a distinct failure path that a channel cannot capture, namely centerbody thermal runaway triggering autoignition.</li>
+    <li><strong>Micromix designs sidestep BLF entirely.</strong> Some H&#8322; turbine programs avoid boundary-layer flashback by geometry rather than mitigate it. That's the opposite strategy from what this model studies.</li>
+    <li><strong>The straight channel can't isolate onset.</strong> A fully-premixed confined duct has no flame anchor, so the rim-anchored geometry is required for the quantitative onset test. The sweeps established this empirically, not an assumption.</li>
+    <li><strong>Onset is a model-consistency result, not a hardware match.</strong> g<sub>crit</sub> is quantitatively consistent with the Berlad/von-Elbe critical-gradient model at C ≈ 3.2 and O(10&#8308;). A direct experimental stoich H&#8322;/air value sits below the φ ≈ 1.6 data peak, and this model does not claim one.</li>
+  </ul>
+
+  <div class="reveal" style="margin-top: 48px;">
+    <a href="https://github.com/deepmodeling/deepflame-dev" class="report-link">DeepFlame framework &rarr;</a>
+    <a href="https://samayhs.github.io/#projects" class="link-ghost">Back to projects &rarr;</a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-copy">&copy; 2026 Samay Shah</span>
+  <a href="#hero" class="footer-back">Back to top &uarr;</a>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.opacity = '0.15';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.opacity = '0.3';
+    });
+  });
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
