@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AeroRotor — eVTOL Propeller Suite — Samay Shah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f1f;
+    --bg2: #0e0e1a;
+    --bg3: #131320;
+    --border: #1e1e2e;
+    --border2: #2a2a3e;
+    --text: #fe9c00;
+    --muted: #555570;
+    --muted2: #888898;
+    --accent: #fe9c00;
+    --accent2: #fe9c00;
+    --accent3: #4D9078;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  body { cursor: none; }
+  #cursor {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s, opacity 0.15s;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+    transform: translate(-50%, -50%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 0.5px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,15,0.85);
+    backdrop-filter: blur(12px);
+    border-color: var(--border);
+  }
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  #hero {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    padding-top: 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(254,156,0,0.05) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    max-width: 900px;
+  }
+  .hero-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: inline-block;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-back:hover { color: var(--text); border-color: var(--muted2); }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+  .hero-name {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.45s forwards;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .hero-desc {
+    font-size: 15px;
+    color: var(--muted2);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.75s forwards;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meta-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 48px;
+    max-width: 1196px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 48px;
+    opacity: 0.6;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 820px;
+  }
+  .content p {
+    color: var(--muted2);
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+  .content p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* PARAMS TABLE */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 820px;
+  }
+  .param-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 20px;
+  }
+  .param-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .param-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* DATA TABLE */
+  .data-table {
+    width: 100%;
+    max-width: 820px;
+    border-collapse: collapse;
+    margin: 24px 0 40px;
+  }
+  .data-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg2);
+  }
+  .data-table td {
+    font-size: 14px;
+    color: var(--muted2);
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .data-table tr:hover td {
+    color: var(--text);
+    background: rgba(254,156,0,0.02);
+  }
+  .data-table .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* CONTOUR GALLERY */
+  .contour-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .contour-item {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .contour-item:hover { border-color: var(--border2); }
+  .contour-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .contour-item:hover img { transform: scale(1.02); }
+  .contour-caption {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .contour-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.05em;
+  }
+  .contour-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* METHOD CARDS */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    margin: 32px 0 40px;
+    max-width: 960px;
+  }
+  .method-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .method-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .method-card:hover { border-color: var(--border2); }
+  .method-card:hover::before { transform: scaleX(1); }
+  .method-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--border2);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .method-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .method-desc {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+  .method-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .method-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 0.5px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg3);
+  }
+
+  /* EQUATIONS */
+  .equation-block {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    padding: 28px 32px;
+    margin: 24px 0 32px;
+    max-width: 820px;
+    overflow-x: auto;
+  }
+  .equation-block .MathJax { color: var(--text) !important; }
+  .equation-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* KEY FINDING */
+  .finding {
+    border-left: 2px solid var(--accent);
+    padding: 20px 28px;
+    margin: 32px 0;
+    max-width: 820px;
+    background: rgba(254,156,0,0.03);
+  }
+  .finding p {
+    color: var(--muted2);
+    line-height: 1.8;
+    margin: 0;
+    font-size: 14px;
+  }
+  .finding strong {
+    color: var(--text);
+  }
+
+  /* CONCLUSION LIST */
+  .conclusion-list {
+    list-style: none;
+    max-width: 820px;
+  }
+  .conclusion-list li {
+    position: relative;
+    padding-left: 24px;
+    color: var(--muted2);
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  .conclusion-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+  .conclusion-list li strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* REPORT LINK */
+  .report-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    padding: 14px 28px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    margin-top: 16px;
+  }
+  .report-link:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .link-ghost {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    text-decoration: none;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    margin-left: 24px;
+  }
+  .link-ghost:hover { color: var(--text); border-color: var(--muted2); }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 48px;
+    max-width: 1196px;
+    margin: 0 auto;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .footer-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .footer-back:hover { color: var(--accent); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 60px 24px; }
+    #hero { padding: 0 24px; padding-top: 80px; }
+    footer { padding: 24px; flex-direction: column; gap: 12px; }
+    .contour-gallery { grid-template-columns: 1fr; }
+    .method-grid { grid-template-columns: 1fr; }
+    .params-grid { grid-template-columns: 1fr 1fr; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+<style>
+  .met-pass{color:var(--accent3);font-weight:700;}
+  .met-fail{color:#f59e0b;font-weight:700;}
+  /* task objectives */
+  .task-list{list-style:none;max-width:820px;counter-reset:task;}
+  .task-list li{
+    position:relative;padding:18px 0 18px 52px;border-bottom:0.5px solid var(--border);
+    color:var(--muted2);font-size:15px;line-height:1.7;
+  }
+  .task-list li::before{
+    counter-increment:task;content:counter(task,decimal-leading-zero);
+    position:absolute;left:0;top:18px;
+    font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:0.05em;
+  }
+  .task-list li strong{color:var(--text);font-weight:500;}
+  /* status roadmap */
+  .roadmap-list{list-style:none;max-width:820px;margin-top:8px;}
+  .roadmap-list li{
+    display:grid;grid-template-columns:64px 1fr auto;gap:20px;align-items:baseline;
+    padding:14px 0;border-bottom:0.5px solid var(--border);
+  }
+  .roadmap-list .rv{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);letter-spacing:0.08em;}
+  .roadmap-list .rd{color:var(--muted2);font-size:14px;line-height:1.6;}
+  .roadmap-list .rd b{color:var(--text);font-weight:500;}
+  .roadmap-list .rs{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+  .rs.done{color:var(--accent3);}
+  .rs.pending{color:#f59e0b;}
+  @media(max-width:768px){.roadmap-list li{grid-template-columns:1fr;gap:4px;}}
+  /* open-decision list */
+  .note-list{list-style:none;max-width:820px;margin-top:8px;}
+  .note-list li{
+    position:relative;padding:14px 0 14px 26px;border-bottom:0.5px solid var(--border);
+    color:var(--muted2);font-size:14px;line-height:1.7;
+  }
+  .note-list li::before{
+    content:'';position:absolute;left:0;top:22px;width:6px;height:6px;
+    border:1px solid var(--accent);border-radius:50%;
+  }
+  .note-list li strong{color:var(--text);font-weight:500;}
+</style>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="https://samayhs.github.io" class="nav-logo">S.Shah</a>
+  <ul class="nav-links">
+    <li><a href="#situation">Situation</a></li>
+    <li><a href="#task">Task</a></li>
+    <li><a href="#action">Action</a></li>
+    <li><a href="#result">Result</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <a href="https://samayhs.github.io/#projects" class="hero-back">&larr; Back to projects</a>
+    <div class="hero-tag">// Propeller Aero + Verification &amp; Validation</div>
+    <h1 class="hero-name">AeroRotor &mdash;<br/><em>eVTOL Propeller Suite</em></h1>
+    <p class="hero-desc">Small electric propellers lift eVTOL and drone airframes at low Reynolds numbers, where the blade sections stall early and behave nothing like full-scale rotors. Blade Element Momentum Theory predicts their performance in under a second, which makes it the workhorse for early sizing. A fast prediction is only worth its verification. This suite pairs a from-scratch BEMT engine with a formal verification pipeline that scores it against UIUC wind-tunnel data and an OpenFOAM 3D RANS field.</p>
+    <div class="hero-meta">
+      <div class="meta-item"><span class="meta-label">Method</span><span class="meta-value">BEMT (Python)</span></div>
+      <div class="meta-item"><span class="meta-label">References</span><span class="meta-value">UIUC &middot; OpenFOAM RANS</span></div>
+      <div class="meta-item"><span class="meta-label">Regime</span><span class="meta-value">Re 30k&ndash;150k</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value" style="color:var(--accent3)">Complete</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SITUATION -->
+<section id="situation">
+  <div class="section-label">// 01 &mdash; Situation</div>
+  <h2 class="section-title">The low-Reynolds propeller problem</h2>
+  <div class="section-divider"></div>
+  <div class="content reveal">
+    <p>Small electric propellers operate at Reynolds numbers between 30,000 and 150,000, where laminar separation bubbles and early stall govern the airfoil sections. Full-scale rotor intuition does not transfer to this regime. BEMT stays the standard tool because it returns a full performance sweep in under a second, fast enough to sit inside a sizing loop. The cost of that speed is fidelity, so the prediction is worth nothing without a reference to bound its error.</p>
+    <p>Verification here follows a fixed structure. A physical experiment and a higher-fidelity simulation anchor the truth, and the lower-order model is scored against both. This project treats the UIUC Propeller Database and a full OpenFOAM RANS solve as that ground truth, and treats BEMT as the model under test. The whole suite was built to the NASA systems-engineering standard SP-2016-6105, with a requirements document, a decomposed architecture, and numbered acceptance gates.</p>
+  </div>
+
+  <div class="params-grid reveal">
+    <div class="param-box"><div class="param-value">APC 10&times;4.7</div><div class="param-label">Baseline propeller</div></div>
+    <div class="param-box"><div class="param-value">0.254 m</div><div class="param-label">Diameter (2-bladed)</div></div>
+    <div class="param-box"><div class="param-value">Clark Y / E63</div><div class="param-label">Blade sections</div></div>
+    <div class="param-box"><div class="param-value">2k&ndash;7k RPM</div><div class="param-label">Variable-RPM drive</div></div>
+    <div class="param-box"><div class="param-value">Re 30k&ndash;150k</div><div class="param-label">Low-Reynolds regime</div></div>
+    <div class="param-box"><div class="param-value">&lt; 1 s</div><div class="param-label">50-point sweep latency</div></div>
+  </div>
+</section>
+
+<!-- TASK -->
+<section id="task">
+  <div class="section-label">// 02 &mdash; Task</div>
+  <h2 class="section-title">What it set out to do</h2>
+  <div class="section-divider"></div>
+  <div class="content reveal">
+    <p>Build the BEMT engine from scratch, trim it to a real operating point, and score it against experiment and CFD through gates that pass or fail on their own. The gates were fixed before the model was tuned, so a passing result had to be earned rather than fitted.</p>
+  </div>
+  <ul class="task-list reveal">
+    <li>Build a <strong>vectorized BEMT solver</strong> that stays valid in hover and at high induction, driven by real low-Reynolds airfoil polars.</li>
+    <li>Trim the rotor to <strong>hover and steady axial climb</strong> with a vertical force balance, including airframe parasitic drag.</li>
+    <li>Score the model against <strong>UIUC wind-tunnel data and a 3D RANS CFD field</strong> through six acceptance gates, evaluated automatically on every run.</li>
+  </ul>
+</section>
+
+<!-- ACTION -->
+<section id="action">
+  <div class="section-label">// 03 &mdash; Action</div>
+  <h2 class="section-title">How it was built</h2>
+  <div class="section-divider"></div>
+
+  <div class="content reveal">
+    <p>The suite splits into three subsystems that talk only through immutable data contracts, each exposing one entry point. The aerodynamic engine never sees a trim state, and the trim solver sees the engine as a black-box solve. This keeps the verification pipeline downstream of both, so it scores results without re-running the physics.</p>
+  </div>
+
+  <div class="method-grid reveal">
+    <div class="method-card">
+      <div class="method-num">1.0</div>
+      <div class="method-title">Aerodynamic engine</div>
+      <div class="method-desc">A vectorized BEMT solver built on an exact velocity-form momentum balance that stays valid at high induction and non-singular in hover. It runs a Standard thin-airfoil mode and an Enhanced mode driven by XFOIL polar tables down to Re 10,000. Prandtl tip and hub losses and a Du&ndash;Selig 3D stall-delay correction carry the rotational augmentation.</div>
+      <div class="method-tags">
+        <span class="method-tag">BEMT</span>
+        <span class="method-tag">XFOIL polars</span>
+        <span class="method-tag">Du&ndash;Selig</span>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">2.0</div>
+      <div class="method-title">Trim solver</div>
+      <div class="method-desc">A Newton&ndash;Raphson vertical force balance for hover and steady axial climb. It carries airframe parasitic drag through an equivalent flat-plate area. The rotor operating point converges to a force residual below 10&#8315;&#8308; N.</div>
+      <div class="method-tags">
+        <span class="method-tag">Newton&ndash;Raphson</span>
+        <span class="method-tag">Hover / climb</span>
+        <span class="method-tag">Trim</span>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">3.0</div>
+      <div class="method-title">V&amp;V pipeline</div>
+      <div class="method-desc">Percentage-error scoring against the UIUC and OpenFOAM references through six acceptance gates, MET-01 to MET-06. It emits overlay plots and a generated validation report. It is the automated arbiter of whether a code change still passes.</div>
+      <div class="method-tags">
+        <span class="method-tag">Acceptance gates</span>
+        <span class="method-tag">OpenFOAM RANS</span>
+        <span class="method-tag">Auto report</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content reveal">
+    <div class="equation-block">
+      <div class="equation-label">Exact velocity-form momentum balance (per annulus)</div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:14px;font-family:'Space Mono',monospace;font-size:17px;color:var(--text);padding:8px 0;">
+        <span>(V<sub>&infin;</sub> + v<sub>i</sub>) v<sub>i</sub> =</span>
+        <span style="display:inline-flex;flex-direction:column;text-align:center;line-height:1.3;">
+          <span style="border-bottom:1px solid var(--text);padding:0 10px 3px;">&sigma; W&sup2; C<sub>n</sub></span>
+          <span style="padding-top:3px;">4F</span>
+        </span>
+      </div>
+    </div>
+    <p>Solving directly for the induced velocity v<sub>i</sub> keeps the solver stable at J = 0 hover, where the classical factor form V<sub>a</sub> = V<sub>&infin;</sub>(1 + a) is singular. An early Glauert high-induction patch was removed once verification showed it fired spuriously in axial climb and broke thrust monotonicity. The exact velocity form needs no such patch. Performance is reported as C<sub>T</sub> = T / &rho;n&sup2;D&#8308;, C<sub>P</sub> = P / &rho;n&sup3;D&#8309;, and &eta; = J&middot;C<sub>T</sub> / C<sub>P</sub>.</p>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result">
+  <div class="section-label">// 04 &mdash; Result</div>
+  <h2 class="section-title">What it found</h2>
+  <div class="section-divider"></div>
+
+  <div class="content reveal">
+    <p>Each metric is scored automatically against experiment or CFD. Three gates pass and three miss, and the three misses trace to one cause.</p>
+  </div>
+
+  <table class="data-table reveal">
+    <thead>
+      <tr><th>Gate</th><th>Metric</th><th>Value</th><th>Threshold</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>MET-01</td><td>C<sub>T</sub> @ hover vs UIUC</td><td class="num">6.6%</td><td class="num">&plusmn;5%</td><td><span class="met-fail">FAIL</span></td></tr>
+      <tr><td>MET-02</td><td>C<sub>P</sub> (J &le; 0.5) vs UIUC</td><td class="num">41.8%</td><td class="num">&plusmn;7%</td><td><span class="met-fail">FAIL</span></td></tr>
+      <tr><td>MET-03</td><td>&eta; peak-J location</td><td class="num">&Delta;J 0.075</td><td class="num">&plusmn;0.03</td><td><span class="met-fail">FAIL</span></td></tr>
+      <tr><td>MET-04</td><td>Spanwise dT/dr trend vs CFD</td><td class="num">r = 0.960</td><td class="num">&ge; 0.95</td><td><span class="met-pass">PASS</span></td></tr>
+      <tr><td>MET-05</td><td>Trim residual &sum;F<sub>z</sub></td><td class="num">1.5&times;10&#8315;&#8309; N</td><td class="num">&lt; 10&#8315;&#8308;</td><td><span class="met-pass">PASS</span></td></tr>
+      <tr><td>MET-06</td><td>50-point sweep latency</td><td class="num">0.10 s</td><td class="num">&lt; 1.0 s</td><td><span class="met-pass">PASS</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="content reveal" style="margin-top: 48px;">
+    <div class="section-label">// Overlay</div>
+    <h3 class="section-title" style="font-size: clamp(22px, 3vw, 32px);">BEMT vs. UIUC across advance ratio</h3>
+    <div class="section-divider"></div>
+    <p>Thrust and power coefficients and propulsive efficiency, swept over advance ratio J at fixed RPM. Hover thrust tracks the data closely. The power coefficient increasingly under-predicts as forward flight loads the low-Reynolds inboard sections.</p>
+  </div>
+
+  <div class="contour-gallery reveal" style="grid-template-columns: 1fr; max-width: 960px;">
+    <div class="contour-item">
+      <img src="assets/overlay.png" alt="C_T, C_P and efficiency vs advance ratio — BEMT vs UIUC" loading="lazy" />
+      <div class="contour-caption"><span class="contour-label">C&#8348;, C&#8346; &amp; &eta; vs. J — BEMT vs UIUC</span><span class="contour-tag">fixed RPM sweep</span></div>
+    </div>
+  </div>
+
+  <div class="finding reveal">
+    <p><strong>One root cause, characterized rather than tuned away.</strong> BEMT under-predicts the power coefficient in axial climb by about <strong>42%</strong> against both CFD and experiment, which is what sinks MET-02 and MET-03. It is not a polar-quality artifact. Extending the XFOIL table to Re 10,000, smoothing it, tuning n<sub>crit</sub>, adjusting tip-loss, and adding a Du&ndash;Selig stall-delay model were each tested and ruled out as minor. The residual is the fundamental limit of a 2D-polar strip-theory method at these Reynolds numbers. The physics that does not hit that wall is clean. Hover thrust lands 1.6 points past a strict 5% gate, the spanwise loading shape correlates with 3D CFD at r = 0.96, and trim and latency pass with wide margin.</p>
+  </div>
+</section>
+
+<!-- SCOPE, STATUS & LIMITATIONS -->
+<section id="scope">
+  <div class="section-label">// 05 &mdash; Scope, Status &amp; Limitations</div>
+  <h2 class="section-title">Where it stands</h2>
+  <div class="section-divider"></div>
+
+  <ul class="roadmap-list reveal">
+    <li><span class="rv">v0.3</span><span class="rd"><b>Skeleton &amp; data contracts.</b> Three subsystems stood up test-first, ICD interfaces locked</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.4</span><span class="rd"><b>Real inputs.</b> APC 10&times;4.7 geometry, UIUC wind-tunnel data, and XFOIL E63 polars ingested</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.5</span><span class="rd"><b>Validation loop closed.</b> Enhanced-mode sweep scored end-to-end against UIUC and CFD</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.6</span><span class="rd"><b>Exact momentum.</b> Glauert high-induction patch removed, thrust monotonic, SRD-SYS1-03 revised</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v0.7</span><span class="rd"><b>Stall-delay &amp; CFD gate.</b> Du&ndash;Selig added, MET-04 wired to the CFD operating point at r = 0.96</span><span class="rs done">Done</span></li>
+    <li><span class="rv">v1.0</span><span class="rd"><b>Characterized baseline.</b> 52 tests, ruff clean, root cause bounded against two references</span><span class="rs done">Done</span></li>
+    <li><span class="rv">next</span><span class="rd"><b>Close MET-02/03.</b> A modeling-philosophy decision, not a bug hunt</span><span class="rs pending">Open</span></li>
+  </ul>
+
+  <div class="content reveal" style="margin-top: 40px;">
+    <div class="section-label">// Stated Limitations</div>
+    <div class="section-divider" style="margin-bottom: 32px;"></div>
+  </div>
+
+  <ul class="conclusion-list reveal">
+    <li><strong>An analysis and verification tool.</strong> A fast, scored BEMT engine for early propeller sizing, not flight-critical or certified software.</li>
+    <li><strong>Hover and loading-shape accurate, forward-flight limited.</strong> The CFD-referenced loading distribution and hover thrust are trustworthy. Integrated forward-flight power hits the limit of 2D-polar strip theory.</li>
+    <li><strong>The limitation is the method, not a bug.</strong> The velocity-form momentum balance is exact and hover-stable, and the axial-climb shortfall survived every polar-quality fix and matched both references.</li>
+  </ul>
+
+  <div class="content reveal" style="margin-top: 40px;">
+    <div class="section-label">// Further Works</div>
+    <div class="section-divider" style="margin-bottom: 32px;"></div>
+    <p>With the polar-quality avenues exhausted, closing MET-02/03 further is a modeling-philosophy choice, not a bug hunt.</p>
+  </div>
+
+  <ul class="note-list reveal">
+    <li><strong>Accept the validated baseline.</strong> Write it up as a characterized low-Reynolds 2D-polar limit. This is the recommended path.</li>
+    <li><strong>Revise the MET-02/03 gates</strong> to what 2D-polar BEMT can reach at low Re. A verification-driven requirements change, consistent with the earlier ratified decisions.</li>
+    <li><strong>Feed CFD-calibrated polars back into BEMT.</strong> This likely passes the gates, but turns BEMT into a CFD surrogate and dissolves the independence that makes the verification meaningful.</li>
+  </ul>
+
+  <div class="reveal" style="margin-top: 48px;">
+    <a href="https://samayhs.github.io/#projects" class="report-link">Back to projects &rarr;</a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-copy">&copy; 2026 Samay Shah</span>
+  <a href="#hero" class="footer-back">Back to top &uarr;</a>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.opacity = '0.15';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.opacity = '0.3';
+    });
+  });
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
